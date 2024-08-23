@@ -17,16 +17,13 @@ from src.utils_pandas import UtilsPandas
 from src.utils import Utils
 from src.before_clustering import BeforeClustering, ValFeaturesXEnum, ValFeaturesYEnum 
 from src.cluster_algorithm import ClusterAlgorithm
-from src.snf.compute import make_affinity, DistanceMetric, snf, get_n_clusters, make_affinity_nan, get_n_clusters_revised
+from src.snf_package.compute import make_affinity, DistanceMetric, snf, get_n_clusters, make_affinity_nan, get_n_clusters_revised
 
 
 from src.ordered_affinity_matrix import plot_ordered_affinity_matrix
 
 
 RESULTS_PATH = "results"
-
-
-
 
 
 class FoldersEnum(Enum):

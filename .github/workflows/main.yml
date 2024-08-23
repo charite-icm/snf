@@ -30,5 +30,6 @@ jobs:
         python3 -m pip install -r requirements.txt
     - name: Test with PyTest
       run: |
-        python3 -m pytest --cov=src.snf_package tests_snf
+        python3 -m pytest --cov=src.snf_package tests/snf_package
+        python3 -m pytest --cov=src.snf_pipeline_revised tests/snf_pipeline
     
