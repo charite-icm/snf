@@ -6,3 +6,5 @@ upsetplot
 scipy
 scikit-learn
 pyarrow
+pytest
+pytest-cov
