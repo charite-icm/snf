@@ -26,21 +26,25 @@ from src.ordered_affinity_matrix import plot_ordered_affinity_matrix
 RESULTS_PATH = "results"
 
 
+
+
+
 class FoldersEnum(Enum):
     AFFINITY = "affinity"
-    VALIDATION = "validation"
-    OMICS_PROFILE = "omics_profile"
-    VALIDATION_VERBOSE = "validation_verbose"
-    QUEST_CONT = DataModalityEnum.QUEST_CONT.value
-    QUEST_BINOM = DataModalityEnum.QUEST_BINOM.value
-    QUEST_CATEG = DataModalityEnum.QUEST_CATEG.value
-    DIAG = DataModalityEnum.DIAG.value
-    SYMP = DataModalityEnum.SYMP.value
-    MED_VIT = DataModalityEnum.MED_VIT.value
+    # VALIDATION = "validation"
+    # OMICS_PROFILE = "omics_profile"
+    # VALIDATION_VERBOSE = "validation_verbose"
+    # QUEST_CONT = DataModalityEnum.QUEST_CONT.value
+    # QUEST_BINOM = DataModalityEnum.QUEST_BINOM.value
+    # QUEST_CATEG = DataModalityEnum.QUEST_CATEG.value
+    # DIAG = DataModalityEnum.DIAG.value
+    # SYMP = DataModalityEnum.SYMP.value
+    # MED_VIT = DataModalityEnum.MED_VIT.value
 
 METADATA_CSV = "metadata.csv"
 
 
+# TODO: Maybe add more, ...
 class MetadataValuesEnum(Enum):
     DATA_SELECTION = "data_selection_member"
     SUBGROUP = "subgroup_member"

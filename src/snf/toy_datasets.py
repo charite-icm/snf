@@ -10,6 +10,11 @@ from pkg_resources import resource_filename
 import numpy as np
 from sklearn.utils import Bunch
 
+
+
+
+# TODO: ignore for now, add at the end for an example
+
 _res_path = resource_filename('packages', 'snf/toy_data/{resource}')
 
 

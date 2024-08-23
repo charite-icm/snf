@@ -11,6 +11,10 @@ from enum import Enum
 
 
 # All available metrics in: py:func`scipy.spatial.distance.cdist`.
+
+
+# TODO: only add few options for continuous
+# TODO: also pick metrics for binary and categorical features (see paper)
 class DistanceMetric(Enum):
     BRAYCURTIS = 'braycurtis'
     CANBERRA = 'canberra'
@@ -37,7 +41,8 @@ class DistanceMetric(Enum):
 
 
 
-
+# TODO: add test
+# TODO: check R code
 def make_affinity(*data,
                   metric: str = DistanceMetric.SQEUCLIDEAN.value,
                   K: int = 20,
@@ -137,7 +142,9 @@ def make_affinity(*data,
     return affinity
 
 
-
+# TODO: add test
+# TODO: check R code
+# TODO: add documentation
 def make_affinity_nan(*data,
                       metric: str = DistanceMetric.SQEUCLIDEAN.value,
                       K: int = 20,
@@ -164,7 +171,8 @@ def make_affinity_nan(*data,
     return affinity
 
 
-
+# TODO: add test
+# TODO: check R code
 def affinity_matrix(dist: np.ndarray, *,
                     K: int = 20, mu: float = 0.5) -> np.ndarray:
     r"""
@@ -261,6 +269,8 @@ def affinity_matrix(dist: np.ndarray, *,
 
 
 
+# TODO: add test
+# TODO: check R code
 def snf(*aff, K=20, t=20, alpha=1.0):
     r"""
     Performs Similarity Network Fusion on `aff` matrices
@@ -379,6 +389,8 @@ def snf(*aff, K=20, t=20, alpha=1.0):
     return W
 
 
+# TODO: add test
+# TODO: check R code
 def group_predict(train, test, labels, *, K=20, mu=0.4, t=20):
     """
     Propagates `labels` from `train` data to `test` data via SNF
@@ -451,6 +463,11 @@ def group_predict(train, test, labels, *, K=20, mu=0.4, t=20):
     return predicted_labels
 
 
+
+
+
+
+# TODO: check R code, probably remove and replace with get n_clusters_revised
 def get_n_clusters(arr, n_clusters=range(2, 20)):
     """
     Finds optimal number of clusters in `arr` via eigengap method
@@ -502,6 +519,9 @@ from numpy import linalg as LA
 import matplotlib.pyplot as plt
 
 
+
+# TODO: add test
+# TODO: check R code
 def get_n_clusters_revised(A, plot=True, topK=20):
     """
     :param A: Affinity matrix

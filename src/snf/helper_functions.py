@@ -6,6 +6,9 @@ from scipy import sparse
 import numpy as np
 
 
+
+# TODO: add test
+# TODO: check R code
 def _flatten(messy):
     """
     Flattens a messy list of mixed iterables / not-iterables
@@ -32,6 +35,9 @@ def _flatten(messy):
             yield m
 
 
+
+# TODO: add test
+# TODO: check R code
 def _check_data_metric(data, metric):
     """
     Confirms inputs to `make_affinity()` are appropriate
@@ -66,7 +72,8 @@ def _check_data_metric(data, metric):
             yield check_array(d, force_all_finite=False), m
 
 
-
+# TODO: add test
+# TODO: check R code
 def _find_dominate_set(W, K=20):
     """
     Retains `K` strongest edges for each sample in `W`
@@ -98,6 +105,8 @@ def _find_dominate_set(W, K=20):
     return Wk
 
 
+# TODO: add test
+# TODO: check R code
 def _B0_normalized(W, alpha=1.0):
     """
     Adds `alpha` to the diagonal of `W`
@@ -123,6 +132,9 @@ def _B0_normalized(W, alpha=1.0):
     return W
 
 
+
+# TODO: add test
+# TODO: check R code
 def _check_SNF_inputs(aff):
     """
     Confirms inputs to SNF are appropriate
@@ -146,6 +158,8 @@ def _check_SNF_inputs(aff):
 
     return prep
 
+# TODO: add test
+# TODO: check R code
 def _label_prop(W, Y, *, t=1000):
     """
     Label propagation of labels in `Y` via similarity of `W`
@@ -179,6 +193,8 @@ def _label_prop(W, Y, *, t=1000):
     return Y
 
 
+# TODO: add test
+# TODO: check R code
 def _dnorm(W, norm='ave'):
     """
     Normalizes a symmetric kernel `W`
@@ -212,13 +228,16 @@ def _dnorm(W, norm='ave'):
     return W_norm
 
 
-
+# TODO: add test
+# TODO: check R code
 def _z_score_normalize_nan(data):
     mean = np.nanmean(data, axis=0)
     std = np.nanstd(data, axis=0)
     normalized_data = (data - mean) / std
     return normalized_data
 
+# TODO: add test
+# TODO: check R code
 def _euclidean_distance_nan(u, v):
     mask = ~np.isnan(u) & ~np.isnan(v)
     return np.sqrt(np.sum((u[mask] - v[mask])**2))
