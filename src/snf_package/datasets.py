@@ -8,8 +8,8 @@ from pkg_resources import resource_filename
 import numpy as np
 from sklearn.utils import Bunch
 
-# _res_path = resource_filename('src', 'snf_package/data/{resource}')
-_res_path = op.join("src", "snf_package", "data")
+_res_path = resource_filename('src', 'snf_package/toydata/{resource}')
+# _res_path = op.join("src", "snf_package", "toydata")
 
 
 def _load_data(dset, dfiles):
@@ -29,15 +29,15 @@ def _load_data(dset, dfiles):
         With keys `data` and `labels`
     """
 
-    # dpath = _res_path.format(resource=dset)
-    dpath = op.join(_res_path, dset)
+    dpath = _res_path.format(resource=dset)
+    # dpath = op.join(_res_path, dset)
 
-    # if not op.isdir(dpath):  # should never happen
-    #     raise ValueError('{} is not a valid dataset. If you are receiving '
-    #                      'this error after using snf.datasets.load_simdata() '
-    #                      'or snf.datasets.load_digits() it is possible that '
-    #                      'snfpy was improperly installed. Please check your '
-    #                      'installation and try again.'.format(dset))
+    if not op.isdir(dpath):  # should never happen
+        raise ValueError('{} is not a valid dataset. If you are receiving '
+                         'this error after using snf.datasets.load_simdata() '
+                         'or snf.datasets.load_digits() it is possible that '
+                         'snfpy was improperly installed. Please check your '
+                         'installation and try again.'.format(dset))
 
     # space versus comma-delimited files (ugh)
     try:
