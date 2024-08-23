@@ -32,12 +32,12 @@ def _load_data(dset, dfiles):
     # dpath = _res_path.format(resource=dset)
     dpath = op.join(_res_path, dset)
 
-    if not op.isdir(dpath):  # should never happen
-        raise ValueError('{} is not a valid dataset. If you are receiving '
-                         'this error after using snf.datasets.load_simdata() '
-                         'or snf.datasets.load_digits() it is possible that '
-                         'snfpy was improperly installed. Please check your '
-                         'installation and try again.'.format(dset))
+    # if not op.isdir(dpath):  # should never happen
+    #     raise ValueError('{} is not a valid dataset. If you are receiving '
+    #                      'this error after using snf.datasets.load_simdata() '
+    #                      'or snf.datasets.load_digits() it is possible that '
+    #                      'snfpy was improperly installed. Please check your '
+    #                      'installation and try again.'.format(dset))
 
     # space versus comma-delimited files (ugh)
     try:
