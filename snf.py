@@ -49,10 +49,12 @@
 #         snf_pipeline.save_metadata()
 
 import numpy as np
-import os 
+import os
+from pathlib import Path 
 import pandas as pd
 
 from src.snf_pipeline_revised import _check_validity_loaded_data
+from src.snf_pipeline_revised import remove_rows_above_missing_threshold
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
 MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology", "proteomics_all") 
@@ -60,10 +62,24 @@ FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
 
 
 def main() -> None:
+    save_path = Path("results/test_revised")
     paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]
+    
     dfs = tuple([pd.read_feather(path) for path in paths])
     
+
+
     _check_validity_loaded_data(dfs=dfs)
+
+    # Remove rows where the proportion of missing values exceeds the threshold
+    dfs_after_th_nan = []
+    for df, modality_name in zip(dfs, MOD_DIRS):
+        df_cleaned, row_means = remove_rows_above_missing_threshold(df, th_nan=0.3, verbose=True)
+        print(row_means)
+        dfs_after_th_nan.append(df_cleaned)
+    dfs_after_th_nan = tuple(dfs_after_th_nan)
+
+
 
 if __name__ == "__main__":
     main()

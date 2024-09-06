@@ -41,34 +41,74 @@ def _check_validity_loaded_data(dfs: tuple[pd.DataFrame]) -> None:
             raise ValueError("Column 'eid' does not contain unique values.")
 
 
+def remove_rows_above_missing_threshold(df: pd.DataFrame, th_nan: float = 1.0, verbose: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Removes rows from the DataFrame where the proportion of missing values exceeds the threshold.
 
-# def remove
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The input DataFrame.
+    th_nan : float, optional (default=1.0)
+        A float between 0 and 1 that represents the threshold for the proportion of missing values allowed in each row.
+        Rows with a higher proportion of missing values will be removed.
+    verbose : bool, optional (default=False)
+        If True, prints out how much data was left after filtering out the rows.
+    
+    Returns
+    -------
+    tuple: (pd.DataFrame, pd.DataFrame)
+        - A DataFrame with rows removed based on the missing value threshold.
+        - A DataFrame containing the percentage of missing values for each row (including removed rows).
+    """
+    
+    # Check if th_nan is between 0 and 1
+    if not (0 <= th_nan <= 1):
+        raise ValueError("The threshold (th_nan) must be a float between 0 and 1.")
+    
+    # Calculate the proportion (percentage) of missing values for each row
+    missing_percentage = df.isna().mean(axis=1) * 100  # Converts the proportion to percentage
+    
+    # DataFrame containing the percentage of missing values for each row
+    row_missing_percentage = missing_percentage.to_frame(name="missing_percentage")
+    
+    # Filter rows where missing values exceed the threshold
+    df_cleaned = df[missing_percentage <= th_nan * 100]  # Threshold is compared in percentage
+    
+    # If verbose, print how much data was removed and left
+    if verbose:
+        original_rows = df.shape[0]
+        remaining_rows = df_cleaned.shape[0]
+        removed_rows = original_rows - remaining_rows
+        print(f"Original rows: {original_rows}")
+        print(f"Rows remaining after filtering: {remaining_rows}")
+        print(f"Rows removed: {removed_rows}")
+    
+    return df_cleaned, row_missing_percentage
 
-# def _get_overlapped_modalities_with_nan(self) -> None:
-#     # TODO: It should be based on the eids not indices!!!
-#     print("------------- GETTING OVERLAPPED MODALITIES WITH MISSING DATA --------------------")
-#     valid_index: list[list] = []
-#     for modality in self.modalities:
-#         df = self.dfs[modality].copy()
-#         mean_nan_per_row = df.isna().mean(axis=1)
-#         index_under_th = list(df[mean_nan_per_row < self.th_nan].index)
-#         valid_index.append(index_under_th)
-#         print(f"{modality.value}: {len(index_under_th)}/{df.shape[0]} data "
-#                 f"with <{int(self.th_nan*100)} % NaN values")
 
 
-#         fig, ax = plt.subplots()
-#         ax.set_title(f"Amount of missing data per row - {modality.name.lower()}",
-#                         fontweight="bold")
-#         histplot = sns.histplot(mean_nan_per_row*100, bins=20, kde=False, color='skyblue', ax=ax)
-#         histplot.set(xlabel="% of missing data")
-#         ax.bar_label(histplot.containers[0], fmt="%d", label_type="edge", fontsize=8, color="black", weight="bold",
-#                         labels=[str(v) if v else '' for v in histplot.containers[0].datavalues])
 
-#         ax.axvline(x=self.th_nan*100, color="red", linestyle="--", label="threshold")
-#         ax.legend()
-#         save_figure(fig, os.path.join(RESULTS_PATH, self.result_dir_name, f"missing_data_{modality.name.lower()}"),
-#                     plt_close=True)
+
+
+
+
+
+
+
+
+        # fig, ax = plt.subplots()
+        # ax.set_title(f"Amount of missing data per row - {modality.name.lower()}",
+        #                 fontweight="bold")
+        # histplot = sns.histplot(mean_nan_per_row*100, bins=20, kde=False, color='skyblue', ax=ax)
+        # histplot.set(xlabel="% of missing data")
+        # ax.bar_label(histplot.containers[0], fmt="%d", label_type="edge", fontsize=8, color="black", weight="bold",
+        #                 labels=[str(v) if v else '' for v in histplot.containers[0].datavalues])
+
+        # ax.axvline(x=self.th_nan*100, color="red", linestyle="--", label="threshold")
+        # ax.legend()
+        # save_figure(fig, os.path.join(RESULTS_PATH, self.result_dir_name, f"missing_data_{modality.name.lower()}"),
+        #             plt_close=True)
 
 
 
