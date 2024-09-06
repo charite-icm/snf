@@ -55,6 +55,7 @@ import pandas as pd
 
 from src.snf_pipeline_revised import _check_validity_loaded_data
 from src.snf_pipeline_revised import remove_rows_above_missing_threshold
+from src.snf_pipeline_revised import plot_row_missing_percentage_histogram
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
 MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology", "proteomics_all") 
@@ -62,11 +63,21 @@ FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
 
 
 def main() -> None:
-    save_path = Path("results/test_revised")
     paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]
+
     
     dfs = tuple([pd.read_feather(path) for path in paths])
     
+
+    th_nan = 0.3
+    save_path = Path("results/test_revised")
+    save_path_histogram = os.path.join(save_path, "histogram_missing_percentage")
+    plot_missing_percentage = True 
+    os.makedirs(save_path, exist_ok=True)
+    os.makedirs(save_path_histogram, exist_ok=True)
+    
+    verbose = True
+
 
 
     _check_validity_loaded_data(dfs=dfs)
@@ -74,9 +85,13 @@ def main() -> None:
     # Remove rows where the proportion of missing values exceeds the threshold
     dfs_after_th_nan = []
     for df, modality_name in zip(dfs, MOD_DIRS):
-        df_cleaned, row_means = remove_rows_above_missing_threshold(df, th_nan=0.3, verbose=True)
-        print(row_means)
+        df_cleaned, row_missing_percentage = remove_rows_above_missing_threshold(df, th_nan=th_nan, verbose=verbose)
         dfs_after_th_nan.append(df_cleaned)
+
+        # Plot missing percentage histogram
+        if plot_missing_percentage:
+            plot_row_missing_percentage_histogram(row_missing_percentage, th_nan, modality_name, save_path_histogram)
+
     dfs_after_th_nan = tuple(dfs_after_th_nan)
 
 
