@@ -1,39 +1,77 @@
 import pandas as pd
 
-def _check_validity_loaded_data(list_dfs: list[pd.DataFrame]) -> None:
-    """
-    Validate a list of pandas DataFrames to ensure they meet the required conditions.
 
-    This function checks whether the provided list of DataFrames meets the following criteria:
-    1. The list contains at least two DataFrames.
-    2. Each element in the list is a pandas DataFrame.
+def _check_validity_loaded_data(dfs: tuple[pd.DataFrame]) -> None:
+    """
+    Validate a tuple of pandas DataFrames to ensure they meet the required conditions.
+
+    This function checks whether the provided tuple of DataFrames meets the following criteria:
+    1. The tuple contains at least two DataFrames.
+    2. Each element in the tuple is a pandas DataFrame.
     3. Each DataFrame contains a column named 'eid'.
     4. The 'eid' column in each DataFrame contains unique values (i.e., no duplicates).
 
     Parameters
     ----------
-    list_dfs : list[pd.DataFrame]
-        A list of pandas DataFrames to be validated.
+    dfs : tuple[pd.DataFrame]
+        A tuple of pandas DataFrames to be validated.
 
     Raises
     ------
     ValueError
-        If the list contains fewer than two DataFrames, if a DataFrame does not contain 
+        If the tuple contains fewer than two DataFrames, if a DataFrame does not contain 
         the 'eid' column, or if the 'eid' column contains duplicate values.
     
     TypeError
-        If any element in the list is not a pandas DataFrame.
+        If any element in the tuple is not a pandas DataFrame.
     """
-    if len(list_dfs) < 2:
-        raise ValueError(f"Minimum number of data modalities is 2. {len(list_dfs)} provided")
 
-    for df in list_dfs:
+    if not isinstance(dfs, tuple):
+        raise TypeError(f"dfs should be of type tuple not {type(dfs)}")
+    
+    if len(dfs) < 2:
+        raise ValueError(f"Minimum number of data modalities is 2. {len(dfs)} provided")
+    
+    for df in dfs:
         if not isinstance(df, pd.DataFrame):
             raise TypeError(f"Invalid type of data: {type(df)}. It should be pandas.DataFrame")
         if "eid" not in df.columns:
             raise ValueError("Column with IDs should be named 'eid'")
         if df["eid"].duplicated().any():
             raise ValueError("Column 'eid' does not contain unique values.")
+
+
+
+# def remove
+
+# def _get_overlapped_modalities_with_nan(self) -> None:
+#     # TODO: It should be based on the eids not indices!!!
+#     print("------------- GETTING OVERLAPPED MODALITIES WITH MISSING DATA --------------------")
+#     valid_index: list[list] = []
+#     for modality in self.modalities:
+#         df = self.dfs[modality].copy()
+#         mean_nan_per_row = df.isna().mean(axis=1)
+#         index_under_th = list(df[mean_nan_per_row < self.th_nan].index)
+#         valid_index.append(index_under_th)
+#         print(f"{modality.value}: {len(index_under_th)}/{df.shape[0]} data "
+#                 f"with <{int(self.th_nan*100)} % NaN values")
+
+
+#         fig, ax = plt.subplots()
+#         ax.set_title(f"Amount of missing data per row - {modality.name.lower()}",
+#                         fontweight="bold")
+#         histplot = sns.histplot(mean_nan_per_row*100, bins=20, kde=False, color='skyblue', ax=ax)
+#         histplot.set(xlabel="% of missing data")
+#         ax.bar_label(histplot.containers[0], fmt="%d", label_type="edge", fontsize=8, color="black", weight="bold",
+#                         labels=[str(v) if v else '' for v in histplot.containers[0].datavalues])
+
+#         ax.axvline(x=self.th_nan*100, color="red", linestyle="--", label="threshold")
+#         ax.legend()
+#         save_figure(fig, os.path.join(RESULTS_PATH, self.result_dir_name, f"missing_data_{modality.name.lower()}"),
+#                     plt_close=True)
+
+
+
 
 
 

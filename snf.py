@@ -61,9 +61,9 @@ FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
 
 def main() -> None:
     paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]
-    list_dfs = [pd.read_feather(path) for path in paths]
+    dfs = tuple([pd.read_feather(path) for path in paths])
     
-    _check_validity_loaded_data(list_dfs=list_dfs)
+    _check_validity_loaded_data(dfs=dfs)
 
 if __name__ == "__main__":
     main()
