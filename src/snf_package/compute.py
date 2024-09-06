@@ -444,7 +444,8 @@ def group_predict(train, test, labels, *, K=20, mu=0.4, t=20):
             raise ValueError('Train and test data must have same number of '
                              'features for each data type. Make sure to '
                              'supply data types in the same order.')
-        affinities += [make_affinity(np.row_stack([tr, te]), K=K, mu=mu)]
+        # affinities += [make_affinity(np.row_stack([tr, te]), K=K, mu=mu)]
+        affinities += [make_affinity(np.vstack([tr, te]), K=K, mu=mu)]
 
     # fuse with SNF
     fused_aff = snf(*affinities, K=K, t=t)
