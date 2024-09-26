@@ -4,6 +4,9 @@ import seaborn as sns
 import os
 
 
+EID_NAME = "eid"
+
+
 def _check_validity_loaded_data(dfs: tuple[pd.DataFrame]) -> None:
     """
     Validate a tuple of pandas DataFrames to ensure they meet the required conditions.
@@ -38,10 +41,10 @@ def _check_validity_loaded_data(dfs: tuple[pd.DataFrame]) -> None:
     for df in dfs:
         if not isinstance(df, pd.DataFrame):
             raise TypeError(f"Invalid type of data: {type(df)}. It should be pandas.DataFrame")
-        if "eid" not in df.columns:
-            raise ValueError("Column with IDs should be named 'eid'")
-        if df["eid"].duplicated().any():
-            raise ValueError("Column 'eid' does not contain unique values.")
+        if EID_NAME not in df.columns:
+            raise ValueError(f"Column with IDs should be named {EID_NAME}")
+        if df[EID_NAME].duplicated().any():
+            raise ValueError(f"Column {EID_NAME} does not contain unique values.")
 
 
 def remove_rows_above_missing_threshold(df: pd.DataFrame, th_nan: float = 1.0, verbose: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
