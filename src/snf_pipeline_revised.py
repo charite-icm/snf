@@ -225,68 +225,61 @@ def save_figure(fig, fig_name: str, plt_close: bool = False, img_formats: tuple[
 
 
 
-# def _load_snps(self) -> None:
-#     data_loader_snps = DataLoaderSnps10k(data_selection=self.data_selection,
-#                                             subgroup=self.subgroup)
-#     data_loader_snps.load()
-#     df_snps = data_loader_snps.get_main_df().sort_values(by="eid", ascending=True).reset_index(drop=True)
-#     self.dfs[DataModalityEnum.SNPS_10K] = df_snps
-#     self.modalities.append(DataModalityEnum.SNPS_10K)
+def get_overlapping_modalities(dfs: tuple[pd.DataFrame]) -> tuple[pd.DataFrame]:
+    """
+    Identify and return the overlapping rows across multiple DataFrames based on a common identifier.
 
-#     snps_eids = df_snps["eid"].tolist()
-#     for modality, df in self.dfs.items():
-#         self.dfs[modality] = df[df["eid"].isin(snps_eids)].sort_values(by="eid", ascending=True).reset_index(drop=True)
+    This function takes a tuple of pandas DataFrames and returns a tuple of DataFrames that contain only
+    the rows where the identifier column (specified by `EID_NAME`) overlaps across all input DataFrames.
+    It effectively performs an inner join on the identifier column across all DataFrames.
 
-# def get_overlapped_modalities(self) -> None:
-#     self.dfs_overlapped: dict[DataModalityEnum: pd.DataFrame] = {}
-#     if self.th_nan is None:
-#         self._get_overlapped_modalities_no_nan()
-#     else:
-#         self._get_overlapped_modalities_with_nan()
+    Parameters
+    ----------
+    dfs : tuple[pd.DataFrame]
+        A tuple containing pandas DataFrames to be processed. Each DataFrame must contain the column specified
+        by `EID_NAME`.
 
-#     print("------------- DF OVERLAPPED SHAPES --------------------")
-#     for modality, df in self.dfs.items():
-#         self.dfs_overlapped[modality] = df.loc[self.intersection_index]
-#         print(f"{modality.value} shape: {df.loc[self.intersection_index].shape}")
+    Returns
+    -------
+    tuple[pd.DataFrame]
+        A tuple of pandas DataFrames, each filtered to include only the rows where the `EID_NAME` column
+        matches across all input DataFrames.
+
+    Raises
+    ------
+    ValueError
+        If fewer than two DataFrames are provided, or if there are no overlapping identifiers between the DataFrames.
+
+    Examples
+    --------
+    >>> df1 = pd.DataFrame({'eid': [1, 2, 3], 'data1': [10, 20, 30]})
+    >>> df2 = pd.DataFrame({'eid': [2, 3, 4], 'data2': [200, 300, 400]})
+    >>> df3 = pd.DataFrame({'eid': [3, 4, 5], 'data3': [3000, 4000, 5000]})
+    >>> overlapping_dfs = get_overlapping_modalities((df1, df2, df3))
+    >>> for df in overlapping_dfs:
+    ...     print(df)
+       eid  data1
+    2    3     30
+       eid  data2
+    1    3    300
+       eid  data3
+    0    3   3000
+
+    Notes
+    -----
+    - The function assumes that the identifier column `EID_NAME` is present in all DataFrames.
+    - The order of DataFrames in the returned tuple corresponds to the order in the input tuple.
+    - If there are no overlapping identifiers, a ValueError is raised.
+    """
+    if len(dfs) < 2:
+        raise ValueError(f"Minimum number of DataFrames is 2 ({len(dfs)} given)")
+
+    eid_sets = [set(df[EID_NAME]) for df in dfs]
+    eid_intersection = set.intersection(*eid_sets)
+
+    if len(eid_intersection) == 0:
+        raise ValueError(f"No overlapping '{EID_NAME}'s between modalities")
+
+    return tuple(df[df[EID_NAME].isin(eid_intersection)].reset_index(drop=True) for df in dfs)
 
 
-# def _get_overlapped_modalities_no_nan(self) -> None:
-#     self.df_concat, self.intersection_index = UtilsPandas.get_overlapping_indices(
-#         dfs=[self.dfs[modality] for modality in self.modalities],
-#         on="eid"
-#     )
-
-# def _get_overlapped_modalities_with_nan(self) -> None:
-#     # TODO: It should be based on the eids not indices!!!
-#     print("------------- GETTING OVERLAPPED MODALITIES WITH MISSING DATA --------------------")
-#     valid_index: list[list] = []
-#     for modality in self.modalities:
-#         df = self.dfs[modality].copy()
-#         mean_nan_per_row = df.isna().mean(axis=1)
-#         index_under_th = list(df[mean_nan_per_row < self.th_nan].index)
-#         valid_index.append(index_under_th)
-#         print(f"{modality.value}: {len(index_under_th)}/{df.shape[0]} data "
-#                 f"with <{int(self.th_nan*100)} % NaN values")
-
-
-#         fig, ax = plt.subplots()
-#         ax.set_title(f"Amount of missing data per row - {modality.name.lower()}",
-#                         fontweight="bold")
-#         histplot = sns.histplot(mean_nan_per_row*100, bins=20, kde=False, color='skyblue', ax=ax)
-#         histplot.set(xlabel="% of missing data")
-#         ax.bar_label(histplot.containers[0], fmt="%d", label_type="edge", fontsize=8, color="black", weight="bold",
-#                         labels=[str(v) if v else '' for v in histplot.containers[0].datavalues])
-
-#         ax.axvline(x=self.th_nan*100, color="red", linestyle="--", label="threshold")
-#         ax.legend()
-#         save_figure(fig, os.path.join(RESULTS_PATH, self.result_dir_name, f"missing_data_{modality.name.lower()}"),
-#                     plt_close=True)
-
-#     print("------------- OVERLAPPED MISSING DATA --------------------")
-#     # Find the intersection of elements
-#     intersection_result = set(valid_index[0])
-#     for l in valid_index[1:]:
-#         intersection_result = intersection_result.intersection(l)
-#     # Convert the result back to a list if needed
-#     self.intersection_index = list(intersection_result)
-#     print(f"{len(self.intersection_index)}/{self.dfs[self.modalities[0]].shape[0]} intersected data!")
