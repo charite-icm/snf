@@ -93,7 +93,7 @@ def main() -> None:
             plot_row_missing_percentage_histogram(row_missing_percentage, th_nan, modality_name, save_path_histogram)
 
     dfs_after_th_nan = tuple(dfs_after_th_nan)
-
+    print([df.shape for df in dfs_after_th_nan])
 
 
 if __name__ == "__main__":
