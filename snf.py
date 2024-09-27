@@ -58,6 +58,7 @@ from src.snf_pipeline_revised import remove_rows_above_missing_threshold
 from src.snf_pipeline_revised import plot_row_missing_percentage_histogram
 from src.snf_pipeline_revised import get_overlapping_modalities
 from src.snf_pipeline_revised import save_overlapping_eids
+from src.snf_pipeline_revised import convert_df_to_np
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
 MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology", "proteomics_all") 
@@ -67,9 +68,7 @@ FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
 def main() -> None:
     paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]    
     dfs = tuple([pd.read_feather(path) for path in paths])
-    # # convert omics to linear scale
-    # dfs = tuple([2**df if mod == "proteomics_all" else df
-    #              for df, mod in zip(dfs, MOD_DIRS)])
+
 
 
 
@@ -104,9 +103,11 @@ def main() -> None:
 
     dfs_after_modality_intersection = get_overlapping_modalities(dfs_after_th_nan)
     save_overlapping_eids(dfs=dfs_after_modality_intersection, save_path=save_path, verbose=verbose)    
+    np_arrs = convert_df_to_np(dfs_after_modality_intersection)
 
+    # convert omics to linear scale
+    np_arrs = tuple([2**np_arr if mod == "proteomics_all" else np_arr for np_arr, mod in zip(np_arrs, MOD_DIRS)])
 
-    # Convert omics: 2**data_arr (internal because of O-Link)
 
 if __name__ == "__main__":
     main()

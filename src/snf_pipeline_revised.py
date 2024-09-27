@@ -1,8 +1,13 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from pathlib import Path
+
+
+from src.snf_package.compute import DistanceMetric
+from scipy.spatial.distance import cdist
 
 
 EID_NAME = "eid"
@@ -322,7 +327,7 @@ def _write_list_to_txt(file_path: str | Path, my_list: list[str], verbose: bool 
         raise IOError(f"Could not write to file {file_path}: {e}")
 
 
-def save_overlapping_eids(dfs: tuple[pd.DataFrame, ...], save_path: str | Path, verbose: bool = True) -> None:
+def save_overlapping_eids(dfs: tuple[pd.DataFrame], save_path: str | Path, verbose: bool = True) -> None:
     """
     Compute and save the list of overlapping EIDs from multiple DataFrames to a text file.
 
@@ -374,23 +379,88 @@ def save_overlapping_eids(dfs: tuple[pd.DataFrame, ...], save_path: str | Path, 
 
 
 
-
-
-
-def prepare_for_clustering():
-
-
-    # Probaly just converting DataFrame to numpy array
-
-    ## drop eid column, save them in a separate file (.txt)
-    ## to numpy ....
+def convert_df_to_np(dfs: tuple[pd.DataFrame]) -> tuple[np.ndarray]:
+    """
+    Convert a tuple of pandas DataFrames to a tuple of NumPy arrays, excluding a specific column.
     
-    ...
+    This function takes a tuple of pandas DataFrames, drops the column specified by the global variable `EID_NAME`
+    from each DataFrame, and converts the remaining data in each DataFrame to a NumPy array. It returns a tuple
+    containing these NumPy arrays in the same order as the input DataFrames.
+    
+    Parameters
+    ----------
+    dfs : tuple of pd.DataFrame
+        A tuple containing pandas DataFrames to be converted to NumPy arrays. Each DataFrame must contain
+        the column specified by `EID_NAME`, which will be dropped before conversion.
+    
+    Returns
+    -------
+    tuple of np.ndarray
+        A tuple containing NumPy arrays corresponding to the input DataFrames, excluding the `EID_NAME` column.
+    
+    Raises
+    ------
+    KeyError
+        If the `EID_NAME` column is not present in any of the DataFrames.
+    
+    TypeError
+        If `dfs` is not a tuple of pandas DataFrames.
+    
+    Examples
+    --------
+    >>> EID_NAME = 'eid'
+    >>> df1 = pd.DataFrame({'eid': [1, 2], 'feature1': [10, 20], 'feature2': [100, 200]})
+    >>> df2 = pd.DataFrame({'eid': [1, 2], 'feature3': [30, 40], 'feature4': [300, 400]})
+    >>> arrays = convert_df_to_np((df1, df2))
+    >>> for array in arrays:
+    ...     print(array)
+    [[ 10 100]
+     [ 20 200]]
+    [[ 30 300]
+     [ 40 400]]
+    
+    Notes
+    -----
+    - The function assumes that `EID_NAME` is a global variable defined elsewhere in your code.
+    - The order of the NumPy arrays in the returned tuple corresponds to the order of the input DataFrames.
+    - The DataFrames must not contain any non-numeric columns other than `EID_NAME`; otherwise, the resulting
+      NumPy arrays may have an object dtype.
+    """
+    # Validate input is a tuple of DataFrames
+    if not isinstance(dfs, tuple):
+        raise TypeError(f"'dfs' must be a tuple of pandas DataFrames, got {type(dfs)}.")
+    for df in dfs:
+        if not isinstance(df, pd.DataFrame):
+            raise TypeError(f"All elements in 'dfs' must be pandas DataFrames, got {type(df)}.")
+
+    # Convert DataFrames to NumPy arrays
+    return tuple(df.drop(columns=[EID_NAME]).to_numpy() for df in dfs)
+
+    
+
 
 
 def set_affinity_matrix_parameters():
-    # metric, K, mu, normalize (value errors: mu between 0 and 1 ....)
-    # different metric is only used if no nan values (th_nan = 0.0) (otherwise euclidean distance is computed)
+#    metric : str or list-of-str, optional
+#         Distance metric to compute. Must be one of available metrics in
+#         :py:func`scipy.spatial.distance.cdist`. If multiple arrays a provided
+#         an equal number of metrics may be supplied. Default: 'sqeuclidean'
+#     K : (0, N) int, optional
+#         Number of neighbors to consider when creating affinity matrix. See
+#         `Notes` of :py:func`src.snf_package.compute.affinity_matrix` for more details.
+#         Default: 20
+#     mu : (0, 1) float, optional
+#         Normalization factor to scale similarity kernel when constructing
+#         affinity matrix. See `Notes` of :py:func`src.snf_package.compute.affinity_matrix`
+#         for more details. Default: 0.5
+#     normalize : bool, optional
+#         Whether to normalize (i.e., zscore) `arr` before constructing the
+#         affinity matrix. Each feature (i.e., column) is normalized separately.
+#         Default: True
+#     th_nan: float ...
+
+
+    # different metric can only be selected if th_nan = 0.0, otherwise euclidean distance (sqeuclidean) is computed)
     ... 
 
 
