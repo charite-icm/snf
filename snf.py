@@ -60,6 +60,9 @@ from src.snf_pipeline_revised import get_overlapping_modalities
 from src.snf_pipeline_revised import save_overlapping_eids
 from src.snf_pipeline_revised import convert_df_to_np
 
+from src.snf_package.compute import DistanceMetric
+from src.snf_pipeline_revised import set_affinity_matrix_parameters
+
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
 MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology", "proteomics_all") 
 FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
@@ -108,6 +111,15 @@ def main() -> None:
     # convert omics to linear scale
     np_arrs = tuple([2**np_arr if mod == "proteomics_all" else np_arr for np_arr, mod in zip(np_arrs, MOD_DIRS)])
 
+
+    K = 0.1
+    mu = 0.5
+    metric = f"{DistanceMetric.SQEUCLIDEAN.value}"
+    normalize = True
+    n = int(np_arrs[0].shape[0])
+
+    params = set_affinity_matrix_parameters(n=n, metric=metric, K=K, mu=mu, normalize=normalize, th_nan=th_nan)
+    print(params)
 
 if __name__ == "__main__":
     main()
