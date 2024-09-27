@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from pathlib import Path
 
 
 EID_NAME = "eid"
@@ -94,8 +95,6 @@ def remove_rows_above_missing_threshold(df: pd.DataFrame, th_nan: float = 1.0, v
     return df_cleaned, row_missing_percentage
 
 
-
-
 def plot_row_missing_percentage_histogram(row_missing_percentage: pd.DataFrame, th_nan: float, modality_name: str,
                                           save_path: str, col_name="missing_percentage") -> None:
     """
@@ -160,8 +159,6 @@ def plot_row_missing_percentage_histogram(row_missing_percentage: pd.DataFrame, 
     save_figure(fig, os.path.join(save_path, modality_name), plt_close=True)
 
 
-
-
 def save_figure(fig, fig_name: str, plt_close: bool = False, img_formats: tuple[str] = (".jpg", ),
                 dpi: int = 300, verbose: bool = True) -> None:
     """
@@ -217,13 +214,6 @@ def save_figure(fig, fig_name: str, plt_close: bool = False, img_formats: tuple[
             print(f"{fig_full_name} saved!")
         if plt_close:
             plt.close()
-
-
-
-
-
-
-
 
 
 def get_overlapping_modalities(dfs: tuple[pd.DataFrame]) -> tuple[pd.DataFrame]:
@@ -284,19 +274,13 @@ def get_overlapping_modalities(dfs: tuple[pd.DataFrame]) -> tuple[pd.DataFrame]:
     return tuple(df[df[EID_NAME].isin(eid_intersection)].reset_index(drop=True) for df in dfs)
 
 
-
-
-def _write_list_to_txt(file_path: str, my_list: list[str], verbose: bool = True) -> None:
+def _write_list_to_txt(file_path: str | Path, my_list: list[str], verbose: bool = True) -> None:
     """
     Write a list of strings to a text file, one string per line.
 
-    This function opens a file at the specified path and writes each string from the provided list
-    to the file, with each string on a new line. If the directories in the path do not exist,
-    they are created automatically.
-
     Parameters
     ----------
-    file_path : str
+    file_path : str or pathlib.Path
         The path to the text file where the list will be written.
 
     my_list : list of str
@@ -313,19 +297,8 @@ def _write_list_to_txt(file_path: str, my_list: list[str], verbose: bool = True)
 
     IOError
         If the file cannot be written.
-
-    Examples
-    --------
-    >>> my_strings = ["line 1", "line 2", "line 3"]
-    >>> _write_list_to_txt("output.txt", my_strings, verbose=True)
-    The list has been successfully written to the file output.txt.
-
-    Notes
-    -----
-    - If the directory specified in 'file_path' does not exist, it will be created.
-    - The file is written using UTF-8 encoding.
-
     """
+    from pathlib import Path
 
     # Validate that my_list is a list of strings
     if not isinstance(my_list, list):
@@ -334,12 +307,13 @@ def _write_list_to_txt(file_path: str, my_list: list[str], verbose: bool = True)
         raise TypeError("All elements in 'my_list' must be strings.")
 
     # Ensure the directory exists
-    directory = os.path.dirname(file_path)
-    if directory != '':
-        os.makedirs(directory, exist_ok=True)
+    file_path = Path(file_path)
+    directory = file_path.parent
+    if directory != Path('.'):
+        directory.mkdir(parents=True, exist_ok=True)
 
     try:
-        with open(file_path, "w", encoding='utf-8') as file:
+        with file_path.open("w", encoding='utf-8') as file:
             for string in my_list:
                 file.write(string + '\n')
         if verbose:
@@ -348,13 +322,58 @@ def _write_list_to_txt(file_path: str, my_list: list[str], verbose: bool = True)
         raise IOError(f"Could not write to file {file_path}: {e}")
 
 
+def save_overlapping_eids(dfs: tuple[pd.DataFrame, ...], save_path: str | Path, verbose: bool = True) -> None:
+    """
+    Compute and save the list of overlapping EIDs from multiple DataFrames to a text file.
+
+    Parameters
+    ----------
+    dfs : tuple of pd.DataFrame
+        A tuple containing pandas DataFrames from which to compute overlapping EIDs.
+        Each DataFrame must contain a column named as specified by `EID_NAME`.
+
+    save_path : str or pathlib.Path
+        The directory path where the overlapping EIDs text file will be saved.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ValueError
+        If fewer than two DataFrames are provided, or if there are no overlapping EIDs.
+
+    IOError
+        If the file cannot be written.
+    """
+    if len(dfs) < 2:
+        raise ValueError(f"Minimum number of DataFrames is 2 ({len(dfs)} given)")
+
+    # Compute overlapping EIDs
+    eid_sets = [set(df[EID_NAME]) for df in dfs]
+    overlapping_eids = set.intersection(*eid_sets)
+
+    if not overlapping_eids:
+        raise ValueError(f"No overlapping '{EID_NAME}'s found among the provided DataFrames.")
+
+    lst_eids = sorted(overlapping_eids, key=lambda x: (isinstance(x, str), x))
+
+    # Ensure the save path exists
+    save_path = Path(save_path)
+    save_path.mkdir(parents=True, exist_ok=True)
+
+    # Write the overlapping EIDs to a text file
+    output_file = save_path / OVERLAPPING_EID_TXT
+
+    _write_list_to_txt(
+        file_path=output_file,
+        my_list=[str(eid) for eid in lst_eids],
+        verbose=verbose
+    )
 
 
 
-
-
-def save_overlapping_eids(dfs: tuple[pd.DataFrame]) -> None:
-    pass
 
 
 

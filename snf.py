@@ -57,6 +57,7 @@ from src.snf_pipeline_revised import _check_validity_loaded_data
 from src.snf_pipeline_revised import remove_rows_above_missing_threshold
 from src.snf_pipeline_revised import plot_row_missing_percentage_histogram
 from src.snf_pipeline_revised import get_overlapping_modalities
+from src.snf_pipeline_revised import save_overlapping_eids
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
 MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology", "proteomics_all") 
@@ -102,7 +103,7 @@ def main() -> None:
     dfs_after_th_nan = tuple(dfs_after_th_nan)
 
     dfs_after_modality_intersection = get_overlapping_modalities(dfs_after_th_nan)
-    print([df.shape for df in dfs_after_modality_intersection])
+    save_overlapping_eids(dfs=dfs_after_modality_intersection, save_path=save_path, verbose=verbose)    
 
 
     # Convert omics: 2**data_arr (internal because of O-Link)
