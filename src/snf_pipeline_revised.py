@@ -5,6 +5,7 @@ import os
 
 
 EID_NAME = "eid"
+OVERLAPPING_EID_TXT = "overlapping_eid.txt"
 
 
 def _check_validity_loaded_data(dfs: tuple[pd.DataFrame]) -> None:
@@ -283,3 +284,207 @@ def get_overlapping_modalities(dfs: tuple[pd.DataFrame]) -> tuple[pd.DataFrame]:
     return tuple(df[df[EID_NAME].isin(eid_intersection)].reset_index(drop=True) for df in dfs)
 
 
+
+
+def _write_list_to_txt(file_path: str, my_list: list[str], verbose: bool = True) -> None:
+    """
+    Write a list of strings to a text file, one string per line.
+
+    This function opens a file at the specified path and writes each string from the provided list
+    to the file, with each string on a new line. If the directories in the path do not exist,
+    they are created automatically.
+
+    Parameters
+    ----------
+    file_path : str
+        The path to the text file where the list will be written.
+
+    my_list : list of str
+        The list of strings to write to the file.
+
+    verbose : bool, optional
+        If True, prints a message indicating that the list has been successfully written.
+        Default is True.
+
+    Raises
+    ------
+    TypeError
+        If 'my_list' is not a list of strings.
+
+    IOError
+        If the file cannot be written.
+
+    Examples
+    --------
+    >>> my_strings = ["line 1", "line 2", "line 3"]
+    >>> _write_list_to_txt("output.txt", my_strings, verbose=True)
+    The list has been successfully written to the file output.txt.
+
+    Notes
+    -----
+    - If the directory specified in 'file_path' does not exist, it will be created.
+    - The file is written using UTF-8 encoding.
+
+    """
+
+    # Validate that my_list is a list of strings
+    if not isinstance(my_list, list):
+        raise TypeError(f"'my_list' must be a list, got {type(my_list)}.")
+    if not all(isinstance(s, str) for s in my_list):
+        raise TypeError("All elements in 'my_list' must be strings.")
+
+    # Ensure the directory exists
+    directory = os.path.dirname(file_path)
+    if directory != '':
+        os.makedirs(directory, exist_ok=True)
+
+    try:
+        with open(file_path, "w", encoding='utf-8') as file:
+            for string in my_list:
+                file.write(string + '\n')
+        if verbose:
+            print(f"The list has been successfully written to the file {file_path}.")
+    except IOError as e:
+        raise IOError(f"Could not write to file {file_path}: {e}")
+
+
+
+
+
+
+
+def save_overlapping_eids(dfs: tuple[pd.DataFrame]) -> None:
+    pass
+
+
+
+def prepare_for_clustering():
+
+
+    # Probaly just converting DataFrame to numpy array
+
+    ## drop eid column, save them in a separate file (.txt)
+    ## to numpy ....
+    
+    ...
+
+
+def set_affinity_matrix_parameters():
+    # metric, K, mu, normalize (value errors: mu between 0 and 1 ....)
+    # different metric is only used if no nan values (th_nan = 0.0) (otherwise euclidean distance is computed)
+    ... 
+
+
+
+def compute_aff_networks():
+    ...
+
+
+def compute_fused_network():
+    ...
+
+
+def get_n_clusters_revised():
+    # if number of clusters not preselected, select from the eigengap metric
+    ...
+
+
+def apply_spectral_clustering_on_fused_network():
+    ...
+
+def save_cluster_eids():
+    ...
+
+
+def compute_silhouette_score():
+    ...
+
+
+def plot_ordered_affinity_matrix():
+    ...
+
+
+def plot_upset():
+    # Ensure the version of upset library (0.9.0)
+    ...
+
+
+
+# class FoldersEnum(Enum):
+#     AFFINITY = "affinity"
+#     # VALIDATION = "validation"
+#     # OMICS_PROFILE = "omics_profile"
+#     # VALIDATION_VERBOSE = "validation_verbose"
+#     # QUEST_CONT = DataModalityEnum.QUEST_CONT.value
+#     # QUEST_BINOM = DataModalityEnum.QUEST_BINOM.value
+#     # QUEST_CATEG = DataModalityEnum.QUEST_CATEG.value
+#     # DIAG = DataModalityEnum.DIAG.value
+#     # SYMP = DataModalityEnum.SYMP.value
+#     # MED_VIT = DataModalityEnum.MED_VIT.value
+
+
+    # def make_dirs(self) -> None:
+    #     self.mod_paths: dict[DataModalityEnum: str] = {}
+    #     for modality in self.modalities:
+    #         self.mod_paths[modality] = os.path.join(self.result_dir_name, modality.value)
+    #     self.fused_path = os.path.join(self.result_dir_name, "fused")
+
+    #     all_paths = [*[path for _, path in self.mod_paths.items()], self.fused_path]
+    #     for path in all_paths:
+    #         if not os.path.exists(os.path.join(RESULTS_PATH, path)):
+    #             os.mkdir(os.path.join(RESULTS_PATH, path))
+
+    #         for folder_enum in FoldersEnum:
+    #             plot_path = os.path.join(RESULTS_PATH, path, folder_enum.value)
+    #             if not os.path.exists(plot_path):
+    #                 os.mkdir(plot_path)
+
+
+    # def prepare_for_clustering(self) -> None:
+    #     self.np_arrays: dict[DataModalityEnum: np.ndarray] = {}
+    #     if self.th_nan is None:
+    #         self._prepare_for_clustering_no_nan()
+    #     else:
+    #         self._prepare_for_clustering_with_nan()
+    #     print("------------ NP SHAPES ---------------------")
+    #     for mod, arr in self.np_arrays.items():
+    #         print(f"{mod} shape: {arr.shape}")
+
+    # def _prepare_for_clustering_no_nan(self):
+    #     self.before_clust: dict[DataModalityEnum: BeforeClustering] = {}
+    #     for modality in self.modalities:
+    #         log_scale = False
+    #         if "prot" in modality.name.lower():
+    #             log_scale = True
+    #         before_clust = BeforeClustering(df_train=self.dfs_overlapped[modality],
+    #                                         df_val=self.dfs_overlapped[DataModalityEnum.VALIDATION],
+    #                                         save_folder=self.mod_paths[modality],
+    #                                         val_y_enum=self.val_y_enum, val_x_enum=self.val_x_enum,
+    #                                         reduce_dim=None, pca_variance_to_keep=None, log_scale=log_scale)
+    #         before_clust.main()
+    #         self.before_clust[modality] = before_clust
+    #         self.np_arrays[modality] = before_clust.get_np_train()
+    #     self.np_arrays[DataModalityEnum.VALIDATION] = before_clust.get_np_val()
+    #     self.eids = before_clust.get_eids()
+    #     self.val_x_feature_name = self.before_clust[self.modalities[0]].get_val_x_feature_name()
+    #     self.val_y_feature_name = self.before_clust[self.modalities[0]].get_val_y_feature_name()
+    #     # We only need it for the path to save cluster plots
+    #     self.before_clust_concat = BeforeClustering(df_train=self.df_concat,
+    #                                                 df_val=self.dfs_overlapped[DataModalityEnum.VALIDATION],
+    #                                                 save_folder=self.fused_path,
+    #                                                 val_y_enum=self.val_y_enum, val_x_enum=self.val_x_enum,
+    #                                                 reduce_dim=None, pca_variance_to_keep=None)
+    #     self.before_clust_concat.main()
+
+    # def _prepare_for_clustering_with_nan(self):
+    #     for modality in ([*self.modalities, DataModalityEnum.VALIDATION]):
+    #         if self.eids is None:
+    #             self.eids = self.dfs_overlapped[modality]["eid"].tolist()
+
+    #         data_arr = self.dfs_overlapped[modality].drop(columns=["eid"]).to_numpy()
+    #         if "prot" in modality.name.lower():
+    #             data_arr = 2**data_arr
+
+    #         self.np_arrays[modality] = np.array(data_arr)
+    #     # self.K = 20
+    #     self.K = len(self.eids) // 10

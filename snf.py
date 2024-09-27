@@ -64,20 +64,27 @@ FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
 
 
 def main() -> None:
-    paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]
-
-    
+    paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]    
     dfs = tuple([pd.read_feather(path) for path in paths])
-    
+    # # convert omics to linear scale
+    # dfs = tuple([2**df if mod == "proteomics_all" else df
+    #              for df, mod in zip(dfs, MOD_DIRS)])
 
-    th_nan = 0.3
+
+
+
     save_path = Path("results/test_revised")
     save_path_histogram = os.path.join(save_path, "histogram_missing_percentage")
-    plot_missing_percentage = True 
+    save_path_fused = os.path.join(save_path, "fused")
+
     os.makedirs(save_path, exist_ok=True)
     os.makedirs(save_path_histogram, exist_ok=True)
+    os.makedirs(save_path_fused, exist_ok=True)
     
+
+    plot_missing_percentage = True 
     verbose = True
+    th_nan = 0.3
 
 
 
@@ -97,6 +104,8 @@ def main() -> None:
     dfs_after_modality_intersection = get_overlapping_modalities(dfs_after_th_nan)
     print([df.shape for df in dfs_after_modality_intersection])
 
+
+    # Convert omics: 2**data_arr (internal because of O-Link)
 
 if __name__ == "__main__":
     main()
