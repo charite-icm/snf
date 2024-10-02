@@ -62,9 +62,12 @@ from src.snf_pipeline_revised import convert_df_to_np
 
 from src.snf_package.compute import DistanceMetric
 from src.snf_pipeline_revised import set_affinity_matrix_parameters
+from src.snf_pipeline_revised import compute_aff_networks
+
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
 MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology", "proteomics_all") 
+# MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology") 
 FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
 
 
@@ -118,8 +121,12 @@ def main() -> None:
     normalize = True
     n = int(np_arrs[0].shape[0])
 
-    params = set_affinity_matrix_parameters(n=n, metric=metric, K=K, mu=mu, normalize=normalize, th_nan=th_nan)
-    print(params)
+    param = set_affinity_matrix_parameters(n=n, metric=metric, K=K, mu=mu, normalize=normalize, th_nan=th_nan)
+    print(param)
+
+    affinity_networks = compute_aff_networks(np_arrs, param=param)
+    print("--------------------------------")
+    print(f"{len(affinity_networks)} affinity matrices generated")
 
 if __name__ == "__main__":
     main()
