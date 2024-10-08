@@ -60,7 +60,7 @@ from src.snf_pipeline_revised import get_overlapping_modalities
 from src.snf_pipeline_revised import save_overlapping_eids
 from src.snf_pipeline_revised import convert_df_to_np
 
-from src.snf_package.compute import DistanceMetric
+from src.snf_package.compute import DistanceMetric, snf
 from src.snf_pipeline_revised import set_affinity_matrix_parameters
 from src.snf_pipeline_revised import compute_aff_networks
 
@@ -92,6 +92,8 @@ def main() -> None:
     verbose = True
     th_nan = 0.3
 
+    t = 20
+    alpha = 1
 
 
     _check_validity_loaded_data(dfs=dfs)
@@ -127,6 +129,15 @@ def main() -> None:
     affinity_networks = compute_aff_networks(np_arrs, param=param)
     print("--------------------------------")
     print(f"{len(affinity_networks)} affinity matrices generated")
+    
+    fused_network = snf(affinity_networks, K=param["K_actual"], t=t, alpha=alpha) # TODO: add t, alpha to param
+    print("-----------------------------------------")
+    print(f"Fused matrix with shape {fused_network.shape} generated.")
+
+
+    # print(f"Fused matrix generated. Suggested number of clusters: ({best}, {second})")
+
+
 
 if __name__ == "__main__":
     main()

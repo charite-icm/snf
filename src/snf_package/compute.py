@@ -10,6 +10,8 @@ from .helper_functions import _euclidean_distance_nan, _z_score_normalize_nan
 from enum import Enum
 
 
+# from src.snf_pipeline_revised import save_figure
+
 # All available metrics in: py:func`scipy.spatial.distance.cdist`.
 
 
@@ -563,3 +565,68 @@ def get_n_clusters_revised(A, plot=True, topK=20):
 
 
     return nb_clusters, eigenvalues, eigenvectors
+
+
+
+
+
+# def get_n_clusters_revised(aff: np.ndarray, plot_path: str | None = None, top_k: int = 20) -> None:
+#     """
+#     Computes the optimal number of clusters based on the eigengap heuristic.
+    
+#     Parameters
+#     ----------
+#     aff : np.ndarray
+#         Affinity matrix (symmetric, square matrix).
+#     plot_path : str, optional
+#         Path where the plot of top eigenvalues will be saved. If None, the plot 
+#         will not be saved (default is None).
+#     top_k : int, optional
+#         Number of top eigenvalues to display in the plot (default is 20).
+        
+#     Returns
+#     -------
+#     tuple
+#         A tuple containing:
+#         - nb_clusters (np.ndarray): Optimal number of clusters based on the eigengap heuristic.
+#         - eigenvalues (np.ndarray): All eigenvalues from the eigen decomposition.
+#         - eigenvectors (np.ndarray): All eigenvectors from the eigen decomposition.
+
+#     Notes
+#     -----
+#     This method performs the eigen decomposition on the affinity matrix `A` following 
+#     the steps of normalized spectral clustering. The eigengap heuristic is then used 
+#     to determine the optimal number of clusters based on the largest gap between 
+#     consecutive eigenvalues.
+    
+#     If `plot_path` is provided, the plot will be saved to the specified location.
+    
+#     References
+#     ----------
+#     - https://papers.nips.cc/paper/2619-self-tuning-spectral-clustering.pdf
+#     - http://www.kyb.mpg.de/fileadmin/user_upload/files/publications/attachments/Luxburg07_tutorial_4488%5b0%5d.pdf
+#     """
+
+#     # Step 1: Construct the normalized Laplacian matrix
+#     laplacian_matrix = csgraph.laplacian(aff, normed=True)
+    
+#     # Step 2: Perform the eigen decomposition
+#     eigenvalues, eigenvectors = LA.eig(laplacian_matrix)
+
+#     # Step 3: Plot the top eigenvalues if plot_path is provided
+#     if plot_path:
+#         fig, ax = plt.subplots()
+#         ax.set_title("Top Eigenvalues of the Affinity Matrix")
+#         ax.scatter(np.arange(top_k), eigenvalues[:top_k])
+#         ax.xlabel("Index")
+#         ax.ylabel("Eigenvalue")
+#         ax.grid(True)
+#         save_figure(fig, fig_name=plot_path, plt_close=True, img_formats=(".jpg", ))
+
+#     # Step 4: Find the eigengap, which corresponds to the optimal number of clusters
+#     sorted_eigenvalues = np.sort(eigenvalues)
+#     eigengap_indices = np.argsort(np.diff(sorted_eigenvalues))[::-1][:top_k]
+#     nb_clusters = eigengap_indices + 1
+
+#     return nb_clusters, eigenvalues, eigenvectors
+
