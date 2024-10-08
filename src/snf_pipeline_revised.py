@@ -668,13 +668,13 @@ def compute_aff_networks(arrs: tuple[np.ndarray], param: dict[str, Any]) -> tupl
 
 
 
-def compute_fused_network():
-    ...
+# def compute_fused_network():
+#     ...
 
 
-def get_n_clusters_revised():
-    # if number of clusters not preselected, select from the eigengap metric
-    ...
+# def get_n_clusters_revised():
+#     # if number of clusters not preselected, select from the eigengap metric
+#     ...
 
 
 def apply_spectral_clustering_on_fused_network():

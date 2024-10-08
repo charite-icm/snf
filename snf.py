@@ -60,7 +60,7 @@ from src.snf_pipeline_revised import get_overlapping_modalities
 from src.snf_pipeline_revised import save_overlapping_eids
 from src.snf_pipeline_revised import convert_df_to_np
 
-from src.snf_package.compute import DistanceMetric, snf
+from src.snf_package.compute import DistanceMetric, snf, get_n_clusters_revised
 from src.snf_pipeline_revised import set_affinity_matrix_parameters
 from src.snf_pipeline_revised import compute_aff_networks
 
@@ -134,9 +134,11 @@ def main() -> None:
     print("-----------------------------------------")
     print(f"Fused matrix with shape {fused_network.shape} generated.")
 
-
-    # print(f"Fused matrix generated. Suggested number of clusters: ({best}, {second})")
-
+    nb_clusters, eigenvalues, eigenvectors = get_n_clusters_revised(fused_network, plot_path=os.path.join(save_path_fused, "eigenvalues.png"), 
+                                                                    top_k=20, verbose=verbose)
+    print(f"Fused matrix generated. Optimal number of clusters: {nb_clusters}") # TODO: check with toydata!!!
+    # print("eigenvalues: ", eigenvalues)
+    # print("eigenvectors: ", eigenvectors)
 
 
 if __name__ == "__main__":
