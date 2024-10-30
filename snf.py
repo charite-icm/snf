@@ -154,7 +154,7 @@ def main() -> None:
     print(f"n_cluster = {n_clusters}")
     print("-----------------------------------------")
 
-
+    
 
 if __name__ == "__main__":
     main()

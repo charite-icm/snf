@@ -75,11 +75,11 @@ def test_snf(affinity):
 
 def test_get_n_clusters(affinity):
     fused = compute.snf(*affinity)
-    n1, n2 = compute.get_n_clusters(fused)
+    n1, n2 = compute.get_n_clusters(fused)[:2]
     # all outputs are integers
     assert all(isinstance(n, np.integer) for n in [n1, n2])
     # providing alternative cluster numbers to search is valid
-    n1, n2 = compute.get_n_clusters(fused, range(2, 10))
+    n1, n2 = compute.get_n_clusters(fused, range(2, 10))[:2]
     # cannot provide single integer -- literally doesn't make sense
     with pytest.raises(TypeError):
         compute.get_n_clusters(fused, 5)
