@@ -67,6 +67,7 @@ from src.snf_pipeline_revised import set_affinity_matrix_parameters
 from src.snf_pipeline_revised import compute_aff_networks
 from src.snf_pipeline_revised import get_optimal_cluster_size
 from src.snf_pipeline_revised import save_cluster_eids
+from src.snf_pipeline_revised import plot_silhouette_score
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -167,7 +168,9 @@ def main() -> None:
     print("-----------------------------------------")
     save_cluster_eids(eids=overlapped_eids, labels=fused_labels, save_path=save_path_fused, verbose=verbose)
     print("-----------------------------------------")
-    
+    plot_silhouette_score(fused_network=fused_network, save_path=save_path_fused, verbose=verbose)
+    print("-----------------------------------------")
+
 
 
 if __name__ == "__main__":
