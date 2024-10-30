@@ -13,8 +13,12 @@ from src.snf_package.compute import make_affinity, make_affinity_nan, check_symm
 
 
 
+
 EID_NAME = "eid"
-OVERLAPPING_EID_TXT = "overlapping_eid.txt"
+CLUSTER_NAME = "cluster"
+
+OVERLAPPING_EID_TXT = "overlapping_eids.txt"
+CLUSTER_EIDS_CSV = "cluster_eids.csv"
 
 
 def _check_validity_loaded_data(dfs: tuple[pd.DataFrame]) -> None:
@@ -330,7 +334,7 @@ def _write_list_to_txt(file_path: str | Path, my_list: list[str], verbose: bool 
         raise IOError(f"Could not write to file {file_path}: {e}")
 
 
-def save_overlapping_eids(dfs: tuple[pd.DataFrame], save_path: str | Path, verbose: bool = True) -> None:
+def save_overlapping_eids(dfs: tuple[pd.DataFrame], save_path: str | Path, verbose: bool = True) -> list[int]:
     """
     Compute and save the list of overlapping EIDs from multiple DataFrames to a text file.
 
@@ -379,7 +383,7 @@ def save_overlapping_eids(dfs: tuple[pd.DataFrame], save_path: str | Path, verbo
         my_list=[str(eid) for eid in lst_eids],
         verbose=verbose
     )
-
+    return list(lst_eids)
 
 
 def convert_df_to_np(dfs: tuple[pd.DataFrame]) -> tuple[np.ndarray]:
@@ -526,6 +530,7 @@ def set_affinity_matrix_parameters(
 
     return params
 
+
 def _validate_n(n: int) -> int:
     if not isinstance(n, int):
         raise TypeError(f"'n' must be an integer, got {type(n)}.")
@@ -533,12 +538,14 @@ def _validate_n(n: int) -> int:
         raise ValueError(f"'n' must be a positive integer, got {n}.")
     return n
 
+
 def _validate_th_nan(th_nan: float) -> float:
     if not isinstance(th_nan, numbers.Number):
         raise TypeError(f"'th_nan' must be a float between 0.0 and 1.0, got {type(th_nan)}.")
     if not (0.0 <= th_nan <= 1.0):
         raise ValueError(f"'th_nan' must be a float between 0.0 and 1.0, got {th_nan}.")
     return th_nan
+
 
 def _validate_metric(metric: str | list[str], th_nan: float) -> str | list[str]:
     if th_nan != 0.0:
@@ -563,6 +570,7 @@ def _validate_metric(metric: str | list[str], th_nan: float) -> str | list[str]:
             raise TypeError(f"'metric' must be a string or list of strings, got {type(metric)}.")
     return metric
 
+
 def _validate_K(K: float, n: int) -> int:
     if not isinstance(K, numbers.Number):
         raise TypeError(f"'K' must be a number between 0.0 and 1.0, got {type(K)}.")
@@ -575,6 +583,7 @@ def _validate_K(K: float, n: int) -> int:
         K_actual = n - 1
     return K_actual
 
+
 def _validate_mu(mu: float) -> float:
     if not isinstance(mu, numbers.Number):
         raise TypeError(f"'mu' must be a number, got {type(mu)}.")
@@ -582,10 +591,12 @@ def _validate_mu(mu: float) -> float:
         raise ValueError(f"'mu' must be a float between 0.0 and 1.0 (exclusive), got {mu}.")
     return mu
 
+
 def _validate_normalize(normalize: bool) -> bool:
     if not isinstance(normalize, bool):
         raise TypeError(f"'normalize' must be a boolean, got {type(normalize)}.")
     return normalize
+
 
 def compute_aff_networks(arrs: tuple[np.ndarray], param: dict[str, Any]) -> tuple[np.ndarray]:
     """
@@ -665,9 +676,6 @@ def compute_aff_networks(arrs: tuple[np.ndarray], param: dict[str, Any]) -> tupl
     return tuple(affinity_networks)
 
 
-
-
-
 # def compute_fused_network():
 #     ...
 
@@ -675,9 +683,6 @@ def compute_aff_networks(arrs: tuple[np.ndarray], param: dict[str, Any]) -> tupl
 # def get_n_clusters_revised():
 #     # if number of clusters not preselected, select from the eigengap metric
 #     ...
-
-
-
 
 
 def get_optimal_cluster_size(n_clusters: int | None, nb_clusters: list[int]) -> int:
@@ -733,13 +738,60 @@ def get_optimal_cluster_size(n_clusters: int | None, nb_clusters: list[int]) -> 
     return nb_clusters[1]
 
       
+# def apply_spectral_clustering_on_fused_network():
+#     ...
 
 
-def apply_spectral_clustering_on_fused_network():
-    ...
+def save_cluster_eids(
+    eids: list[int], labels: list[int], save_path: str | Path, verbose: bool = True
+) -> None:
+    """
+    Save a list of entity IDs and their corresponding cluster labels to a CSV file.
 
-def save_cluster_eids():
-    ...
+    Parameters
+    ----------
+    eids : list of int
+        List of entity IDs to be saved.
+    labels : list of int
+        List of cluster labels corresponding to each entity ID. Must be the same length as `eids`.
+    save_path : str or Path
+        Directory path where the CSV file will be saved.
+    verbose : bool, optional
+        If True, prints a confirmation message after saving. Default is True.
+
+    Raises
+    ------
+    ValueError
+        If the lengths of `eids` and `labels` do not match.
+    FileNotFoundError
+        If `save_path` does not exist.
+
+    Example
+    -------
+    >>> save_cluster_eids([1, 2, 3], [0, 1, 1], "/path/to/save", verbose=True)
+    "/path/to/save/cluster_eids.csv saved!"
+    """
+    
+    # Check if `eids` and `labels` have the same length
+    if len(eids) != len(labels):
+        raise ValueError("The length of `eids` and `labels` must be the same.")
+
+    # Ensure `save_path` exists and is a directory
+    save_path = Path(save_path)
+    if not save_path.exists() or not save_path.is_dir():
+        raise FileNotFoundError(f"The specified directory {save_path} does not exist.")
+
+    # Define full path for the CSV file
+    save_csv_path = save_path / CLUSTER_EIDS_CSV
+
+    # Create DataFrame and save to CSV
+    df = pd.DataFrame({EID_NAME: eids, CLUSTER_NAME: labels})
+    df.to_csv(save_csv_path, index=False)
+    if verbose:
+        print(f"{save_csv_path} saved!")
+
+
+
 
 
 def compute_silhouette_score():

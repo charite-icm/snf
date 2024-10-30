@@ -66,6 +66,7 @@ from src.snf_package.compute import DistanceMetric, snf, get_n_clusters_revised,
 from src.snf_pipeline_revised import set_affinity_matrix_parameters
 from src.snf_pipeline_revised import compute_aff_networks
 from src.snf_pipeline_revised import get_optimal_cluster_size
+from src.snf_pipeline_revised import save_cluster_eids
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -95,7 +96,7 @@ def main() -> None:
     verbose = True
     th_nan = 0.3
     random_state = 41
-    n_clusters = None
+    n_clusters = 6
 
    
 
@@ -113,7 +114,7 @@ def main() -> None:
     dfs_after_th_nan = tuple(dfs_after_th_nan)
 
     dfs_after_modality_intersection = get_overlapping_modalities(dfs_after_th_nan)
-    save_overlapping_eids(dfs=dfs_after_modality_intersection, save_path=save_path, verbose=verbose)    
+    overlapped_eids = save_overlapping_eids(dfs=dfs_after_modality_intersection, save_path=save_path, verbose=verbose)    
     np_arrs = convert_df_to_np(dfs_after_modality_intersection)
 
     # convert omics to linear scale
@@ -127,7 +128,10 @@ def main() -> None:
     n = int(np_arrs[0].shape[0])
 
     param = set_affinity_matrix_parameters(n=n, metric=metric, K=K, mu=mu, normalize=normalize, th_nan=th_nan)
+    print("-----------------------------------------")
     print(param)
+    print("-----------------------------------------")
+
 
     affinity_networks = compute_aff_networks(np_arrs, param=param)
     print("--------------------------------")
@@ -154,7 +158,17 @@ def main() -> None:
     print(f"n_cluster = {n_clusters}")
     print("-----------------------------------------")
 
+    fused_labels = spectral_clustering(fused_network, n_clusters=n_clusters, random_state=random_state)
+    print("Spectral clustering on fused matrix.")
+    # print(fused_labels)
+    print(np.unique(fused_labels, return_counts=True))
+    # print(len(fused_labels))
+    # print(len(overlapped_eids))
+    print("-----------------------------------------")
+    save_cluster_eids(eids=overlapped_eids, labels=fused_labels, save_path=save_path_fused, verbose=verbose)
+    print("-----------------------------------------")
     
+
 
 if __name__ == "__main__":
     main()
