@@ -52,6 +52,8 @@ import numpy as np
 import os
 from pathlib import Path 
 import pandas as pd
+from sklearn.cluster import spectral_clustering
+
 
 from src.snf_pipeline_revised import _check_validity_loaded_data
 from src.snf_pipeline_revised import remove_rows_above_missing_threshold
@@ -60,24 +62,25 @@ from src.snf_pipeline_revised import get_overlapping_modalities
 from src.snf_pipeline_revised import save_overlapping_eids
 from src.snf_pipeline_revised import convert_df_to_np
 
-from src.snf_package.compute import DistanceMetric, snf, get_n_clusters_revised
+from src.snf_package.compute import DistanceMetric, snf, get_n_clusters_revised, get_n_clusters
 from src.snf_pipeline_revised import set_affinity_matrix_parameters
 from src.snf_pipeline_revised import compute_aff_networks
+from src.snf_pipeline_revised import get_optimal_cluster_size
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
-MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology", "proteomics_all") 
-# MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology") 
+MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology", "proteomics_all")
+# MOD_DIRS = ("lab", "metabolomics_marcus_90", "physiology")
 FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
 
 
 def main() -> None:
-    paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]    
+    paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]
     dfs = tuple([pd.read_feather(path) for path in paths])
-
-
-
-
+    
+    # TODO: temporary for faster testing
+    dfs = tuple([*dfs[:-1], dfs[-1].iloc[:, :200]])
+    print([df.shape for df in dfs])
 
     save_path = Path("results/test_revised")
     save_path_histogram = os.path.join(save_path, "histogram_missing_percentage")
@@ -91,10 +94,10 @@ def main() -> None:
     plot_missing_percentage = True 
     verbose = True
     th_nan = 0.3
+    random_state = 41
+    n_clusters = None
 
-    t = 20
-    alpha = 1
-
+   
 
     _check_validity_loaded_data(dfs=dfs)
 
@@ -130,15 +133,27 @@ def main() -> None:
     print("--------------------------------")
     print(f"{len(affinity_networks)} affinity matrices generated")
     
+    t = 20
+    alpha = 1
+    top_k = 20
     fused_network = snf(affinity_networks, K=param["K_actual"], t=t, alpha=alpha) # TODO: add t, alpha to param
     print("-----------------------------------------")
     print(f"Fused matrix with shape {fused_network.shape} generated.")
 
     nb_clusters, eigenvalues, eigenvectors = get_n_clusters_revised(fused_network, plot_path=os.path.join(save_path_fused, "eigenvalues.png"), 
-                                                                    top_k=20, verbose=verbose)
-    print(f"Fused matrix generated. Optimal number of clusters: {nb_clusters}") # TODO: check with toydata!!!
+                                                                    top_k=top_k, verbose=verbose)
+    print("-----------------------------------------")
+    print(f"Optimal number of clusters: {nb_clusters}") # TODO: check with toydata!!!
     # print("eigenvalues: ", eigenvalues)
     # print("eigenvectors: ", eigenvectors)
+    nb_clusters = get_n_clusters(fused_network, n_clusters=range(2, top_k))
+    print(f"Optimal number of clusters: {nb_clusters}") # TODO: check with toydata!!!
+
+    print("-----------------------------------------")
+    n_clusters = get_optimal_cluster_size(n_clusters=n_clusters, nb_clusters=list(nb_clusters))
+    print(f"n_cluster = {n_clusters}")
+    print("-----------------------------------------")
+
 
 
 if __name__ == "__main__":

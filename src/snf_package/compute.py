@@ -4,6 +4,8 @@ from sklearn.metrics.pairwise import nan_euclidean_distances
 
 from scipy import stats
 from scipy.spatial.distance import cdist
+from scipy.sparse import csgraph
+import matplotlib.pyplot as plt
 
 from .helper_functions import _check_data_metric, _find_dominate_set, _B0_normalized, _check_SNF_inputs, _label_prop
 from .helper_functions import _euclidean_distance_nan, _z_score_normalize_nan
@@ -510,11 +512,11 @@ def get_n_clusters(arr, n_clusters=range(2, 20)):
     eigengap = eigengap * (1 - eigs[:-1]) / (1 - eigs[1:])
     n = eigengap[n_clusters - 1].argsort()[::-1]
 
-    print(eigengap[:10])
-    print(eigengap[10:])
-    print(n)
+    # print(eigengap[:10])
+    # print(eigengap[10:])
+    # print(n)
 
-    return n_clusters[n[:2]]
+    return n_clusters[n]
 
 
 
@@ -566,7 +568,7 @@ def get_n_clusters(arr, n_clusters=range(2, 20)):
 
 # TODO: add test
 # TODO: check R code
-def get_n_clusters_revised(aff: np.ndarray, plot_path: str | None = None, top_k: int = 20, verbose: bool = True) -> None:
+def get_n_clusters_revised(aff: np.ndarray, plot_path: str | None = None, top_k: int = 20, verbose: bool = True):
     """
     Computes the optimal number of clusters based on the eigengap heuristic.
     
@@ -606,7 +608,7 @@ def get_n_clusters_revised(aff: np.ndarray, plot_path: str | None = None, top_k:
     laplacian_matrix = csgraph.laplacian(aff, normed=True)
     
     # Step 2: Perform the eigen decomposition
-    eigenvalues, eigenvectors = LA.eig(laplacian_matrix)
+    eigenvalues, eigenvectors = np.linalg.eig(laplacian_matrix)
 
     # Step 3: Plot the top eigenvalues if plot_path is provided
     if plot_path:
