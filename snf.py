@@ -68,6 +68,7 @@ from src.snf_pipeline_revised import compute_aff_networks
 from src.snf_pipeline_revised import get_optimal_cluster_size
 from src.snf_pipeline_revised import save_cluster_eids
 from src.snf_pipeline_revised import plot_silhouette_score
+from src.snf_pipeline_revised import plot_ordered_affinity_matrix
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -171,6 +172,42 @@ def main() -> None:
     plot_silhouette_score(fused_network=fused_network, save_path=save_path_fused, verbose=verbose)
     print("-----------------------------------------")
 
+
+    dynamic_range = plot_ordered_affinity_matrix(network=fused_network,
+                                                 labels=fused_labels,
+                                                 figure_path=os.path.join(save_path_fused, "aff_fused"),
+                                                 title=None,
+                                                 dynamic_range_th=(0.1, 0.1),
+                                                 figsize=(8.0, 8.0),
+                                                 show_colorbar=False,
+                                                 plt_close=True,
+                                                 dynamic_range=None,
+                                                 return_dynamic_range=True,
+                                                 show_axis=False,
+                                                )
+
+    for modality, aff in zip(MOD_DIRS, affinity_networks):
+        plot_ordered_affinity_matrix(network=aff,
+                                     labels=fused_labels,
+                                     figure_path=os.path.join(save_path_fused, f"aff_{modality}"),
+                                     title=None,
+                                     dynamic_range_th=(0.1, 0.1),
+                                     figsize=(8.0, 8.0),
+                                     show_colorbar=False,
+                                     plt_close=True,
+                                     dynamic_range=dynamic_range,
+                                     return_dynamic_range=False,
+                                     show_axis=False,
+                                    )
+    # print(fused_network.max())
+    # print(fused_network.mean())
+    # print(fused_network.std())
+    # print()
+    # for aff in affinity_networks:
+    #     print(aff.max())
+    #     print(aff.mean())
+    #     print(aff.std())
+    #     print()
 
 
 if __name__ == "__main__":

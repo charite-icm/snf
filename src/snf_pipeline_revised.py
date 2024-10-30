@@ -857,97 +857,118 @@ def plot_silhouette_score(fused_network: np.ndarray, save_path: str | Path, n_cl
     save_figure(fig, fig_name=save_figure_path, plt_close=True, verbose=verbose)
 
 
+def plot_ordered_affinity_matrix(network: np.ndarray,
+                                 labels: list[int],
+                                 figure_path: str | Path,
+                                 title: str = None,
+                                 dynamic_range_th: tuple[float, float] = (0.1, 0.1),
+                                 figsize: tuple[float, float] = (8.0, 8.0),
+                                 show_colorbar: bool = False,
+                                 plt_close: bool = True,
+                                 dynamic_range: tuple[float, float] = None,
+                                 return_dynamic_range: bool = False,
+                                 show_axis: bool = False,
+                                 verbose: bool = True,
+                                #  high_quality: bool = False
+                                 ) -> None | tuple[float, float]:
+    """
+    Plot an ordered affinity matrix with optional dynamic range adjustment.
+
+    Parameters
+    ----------
+    network : np.ndarray
+        The affinity matrix to be plotted, a symmetric 2D numpy array.
+    labels : list of int
+        List of cluster labels for ordering the rows and columns of the matrix.
+    figure_path : str or Path
+        Path where the plot will be saved.
+    title : str, optional
+        Title of the plot.
+    dynamic_range_th : tuple of float, optional
+        Threshold values to define the dynamic range as (lower, upper) percentages of max similarity.
+    figsize : tuple of float, optional
+        Size of the figure in inches, default is (8.0, 8.0).
+    show_colorbar : bool, optional
+        If True, a colorbar is displayed alongside the plot.
+    plt_close : bool, optional
+        If True, the plot is closed after saving.
+    dynamic_range : tuple of float, optional
+        Directly sets the minimum and maximum values for the color range. Overrides dynamic_range_th if provided.
+    return_dynamic_range : bool, optional
+        If True, returns the computed dynamic range (vmin, vmax).
+    show_axis : bool, optional
+        If False, axes are hidden for a cleaner plot.
+    verbose : bool, optional
+        If True, a confirmation message is printed after saving the plot.
+
+    Returns
+    -------
+    tuple of float or None
+        Returns (vmin, vmax) if `return_dynamic_range` is True, otherwise returns None.
+
+    Raises
+    ------
+    ValueError
+        If `network` is not a 2D square matrix or if the length of `labels` does not match `network`.
+    FileNotFoundError
+        If `figure_path` directory does not exist.
+
+    Example
+    -------
+    >>> plot_ordered_affinity_matrix(network, labels, "output_path/affinity_matrix.png", title="Affinity Matrix")
+    "output_path/affinity_matrix.png saved!"
+    """
+
+    # Check for valid network matrix dimensions
+    if network.ndim != 2 or network.shape[0] != network.shape[1]:
+        raise ValueError("`network` must be a square 2D matrix.")
+    
+    # Check for valid labels length
+    if len(labels) != network.shape[0]:
+        raise ValueError("Length of `labels` must match the dimensions of `network`.")
+
+    # Ensure figure_path exists
+    if not Path(figure_path).parent.exists():
+        raise FileNotFoundError(f"The specified directory {figure_path.parent} does not exist.")
+    
+    
+    indexing_array = np.argsort(labels)
+    fig, ax = plt.subplots(figsize=figsize)
+
+    visualize_network = np.copy(network)
+    np.fill_diagonal(visualize_network, 0)
+    visualize_network /= np.nansum(visualize_network, axis=1, keepdims=True)
+
+    max_sim = visualize_network.max()
+    mean_sim = visualize_network.mean()
+
+    np.fill_diagonal(visualize_network, 1)
+    visualize_network_ordered = visualize_network[indexing_array][:, indexing_array]
+
+    vmin, vmax = mean_sim - dynamic_range_th[0] * max_sim, mean_sim + dynamic_range_th[1] * max_sim
+    if dynamic_range is not None:
+        vmin, vmax = dynamic_range
+
+    ax.imshow(visualize_network_ordered, origin="lower", cmap="inferno", vmin=vmin, vmax=vmax)
+    if title is not None:
+        ax.set_title(title, fontweight="bold")
+    if show_colorbar:
+        ax.colorbar()
+    if not show_axis:
+        ax.axis("off")
+
+    # if high_quality:
+        # save_plot_as_vector(fig, format="pdf", dpi=600, output_path=f"{figure_path}.pdf")
+        # save_plot_as_tiff(fig, column_type="double", dpi=600, output_path=f"{figure_path}.tiff")
+    save_figure(fig, fig_name=figure_path, plt_close=plt_close, verbose=verbose)
+
+    if return_dynamic_range:
+        return vmin, vmax
 
 
-
-
-
-
-def plot_ordered_affinity_matrix():
-    ...
 
 
 def plot_upset():
     # Ensure the version of upset library (0.9.0)
     ...
 
-
-
-# class FoldersEnum(Enum):
-#     AFFINITY = "affinity"
-#     # VALIDATION = "validation"
-#     # OMICS_PROFILE = "omics_profile"
-#     # VALIDATION_VERBOSE = "validation_verbose"
-#     # QUEST_CONT = DataModalityEnum.QUEST_CONT.value
-#     # QUEST_BINOM = DataModalityEnum.QUEST_BINOM.value
-#     # QUEST_CATEG = DataModalityEnum.QUEST_CATEG.value
-#     # DIAG = DataModalityEnum.DIAG.value
-#     # SYMP = DataModalityEnum.SYMP.value
-#     # MED_VIT = DataModalityEnum.MED_VIT.value
-
-
-    # def make_dirs(self) -> None:
-    #     self.mod_paths: dict[DataModalityEnum: str] = {}
-    #     for modality in self.modalities:
-    #         self.mod_paths[modality] = os.path.join(self.result_dir_name, modality.value)
-    #     self.fused_path = os.path.join(self.result_dir_name, "fused")
-
-    #     all_paths = [*[path for _, path in self.mod_paths.items()], self.fused_path]
-    #     for path in all_paths:
-    #         if not os.path.exists(os.path.join(RESULTS_PATH, path)):
-    #             os.mkdir(os.path.join(RESULTS_PATH, path))
-
-    #         for folder_enum in FoldersEnum:
-    #             plot_path = os.path.join(RESULTS_PATH, path, folder_enum.value)
-    #             if not os.path.exists(plot_path):
-    #                 os.mkdir(plot_path)
-
-
-    # def prepare_for_clustering(self) -> None:
-    #     self.np_arrays: dict[DataModalityEnum: np.ndarray] = {}
-    #     if self.th_nan is None:
-    #         self._prepare_for_clustering_no_nan()
-    #     else:
-    #         self._prepare_for_clustering_with_nan()
-    #     print("------------ NP SHAPES ---------------------")
-    #     for mod, arr in self.np_arrays.items():
-    #         print(f"{mod} shape: {arr.shape}")
-
-    # def _prepare_for_clustering_no_nan(self):
-    #     self.before_clust: dict[DataModalityEnum: BeforeClustering] = {}
-    #     for modality in self.modalities:
-    #         log_scale = False
-    #         if "prot" in modality.name.lower():
-    #             log_scale = True
-    #         before_clust = BeforeClustering(df_train=self.dfs_overlapped[modality],
-    #                                         df_val=self.dfs_overlapped[DataModalityEnum.VALIDATION],
-    #                                         save_folder=self.mod_paths[modality],
-    #                                         val_y_enum=self.val_y_enum, val_x_enum=self.val_x_enum,
-    #                                         reduce_dim=None, pca_variance_to_keep=None, log_scale=log_scale)
-    #         before_clust.main()
-    #         self.before_clust[modality] = before_clust
-    #         self.np_arrays[modality] = before_clust.get_np_train()
-    #     self.np_arrays[DataModalityEnum.VALIDATION] = before_clust.get_np_val()
-    #     self.eids = before_clust.get_eids()
-    #     self.val_x_feature_name = self.before_clust[self.modalities[0]].get_val_x_feature_name()
-    #     self.val_y_feature_name = self.before_clust[self.modalities[0]].get_val_y_feature_name()
-    #     # We only need it for the path to save cluster plots
-    #     self.before_clust_concat = BeforeClustering(df_train=self.df_concat,
-    #                                                 df_val=self.dfs_overlapped[DataModalityEnum.VALIDATION],
-    #                                                 save_folder=self.fused_path,
-    #                                                 val_y_enum=self.val_y_enum, val_x_enum=self.val_x_enum,
-    #                                                 reduce_dim=None, pca_variance_to_keep=None)
-    #     self.before_clust_concat.main()
-
-    # def _prepare_for_clustering_with_nan(self):
-    #     for modality in ([*self.modalities, DataModalityEnum.VALIDATION]):
-    #         if self.eids is None:
-    #             self.eids = self.dfs_overlapped[modality]["eid"].tolist()
-
-    #         data_arr = self.dfs_overlapped[modality].drop(columns=["eid"]).to_numpy()
-    #         if "prot" in modality.name.lower():
-    #             data_arr = 2**data_arr
-
-    #         self.np_arrays[modality] = np.array(data_arr)
-    #     # self.K = 20
-    #     self.K = len(self.eids) // 10
