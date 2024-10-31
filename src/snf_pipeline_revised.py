@@ -5,6 +5,8 @@ import seaborn as sns
 import os
 from pathlib import Path
 import numbers
+from itertools import combinations
+
 from sklearn.cluster import spectral_clustering
 from sklearn.metrics import silhouette_score
 
@@ -1107,28 +1109,79 @@ def _get_list_of_edges(labels: list[int],
 
 
 
-def _transform_to_upsetplot_format() -> None:
-    source_names = [mod.value.split("_")[0] for mod in self.modalities]
+def _transform_to_upsetplot_format(cluster_weights: dict[int, list[list[int]]],
+                                   modality_names: tuple[str],
+                                   verbose: bool = False) -> list[pd.DataFrame]:
+    """
+    Transform cluster weights into a format suitable for creating UpSet plots.
 
+    Parameters
+    ----------
+    cluster_weights : dict of int, list of list of int
+        Dictionary where each key represents a cluster, and each value is a list of lists.
+        Each inner list contains indices of modalities where the similarity value is below a defined threshold.
+    modality_names : tuple of str
+        Tuple of modality names corresponding to each index in the cluster weights.
+    verbose : bool, optional
+        If True, prints detailed information about each cluster's data transformation. Default is True.
+
+    Returns
+    -------
+    list of pd.DataFrame
+        A list of Pandas DataFrames, each containing multi-indexed counts of edges for a specific cluster.
+
+    Raises
+    ------
+    ValueError
+        If `modality_names` is empty or if `cluster_weights` contains data that does not match the length of `modality_names`.
+
+    Example
+    -------
+    >>> cluster_weights = {0: [[0, 1], [1], [0]], 1: [[2], [0, 2]]}
+    >>> modality_names = ("Mod1", "Mod2", "Mod3")
+    >>> result = _transform_to_upsetplot_format(cluster_weights, modality_names)
+    """
+    
+    
+    # Validate input parameters
+    if not modality_names:
+        raise ValueError("`modality_names` must not be empty.")
+    for key, item in cluster_weights.items():
+        if any(max(el) > len(modality_names) for el in item):
+            raise ValueError(f"Elements in `cluster_weights` for cluster {key} have indices that exceed `modality_names` length.")
+    
+    
+    
     combination_list = []
-    for i in range(1, len(source_names) + 1):
-        combination_list.extend(list(combinations(range(len(source_names)), i)))
+    for i in range(1, len(modality_names) + 1):
+        combination_list.extend(list(combinations(range(len(modality_names)), i)))
     combination_list = [list(el) for el in combination_list]
 
-    self.list_of_df_edges = []
-    for key, item in self.cluster_weights.items():
-        print_str = f"Cluster {str(key)}\n----------------\n"
-        for i in range(len(combination_list)):
-            bool_list = [combination_list[i] == list(el) for el in item]
-            print_str += f"{[source_names[el] for el in combination_list[i]]}: {int(100 * np.sum(bool_list) / len(bool_list))} %\n"
+    list_multi_index_df = []
+    for key, item in cluster_weights.items():
+        if verbose:
+            print_str = f"Cluster {str(key)}\n----------------\n"
+            for i in range(len(combination_list)):
+                bool_list = [combination_list[i] == list(el) for el in item]
+                print_str += f"{[modality_names[el] for el in combination_list[i]]}: {int(100 * np.sum(bool_list) / len(bool_list))} %\n"
 
-        list_edges = []
-        for el in item:
-            add_list = [count in el for count in range(len(source_names))]
-            list_edges.append(add_list)
+    
+        # Create boolean arrays representing modality participation in edges
+        list_edges = [[count in el for count in range(len(modality_names))] for el in item]
+        
 
-        self.list_of_df_edges.append(pd.DataFrame(list_edges, columns=source_names))
-    self.source_names = source_names
+        # Cols are modality names, rows represent all points in affinity matrix within a given cluster
+        # Boolean - columns containing True are have the higher similarity value for a given point
+        df_edges_all = pd.DataFrame(list_edges, columns=modality_names)
+        # Count occurrences of each combination
+        df_edges_count = df_edges_all.groupby(list(modality_names)).size()
+
+        list_multi_index_df.append(df_edges_count)
+
+        if verbose:
+            print(print_str)
+    return list_multi_index_df
+
 
 
 def _plot_upset() -> None:

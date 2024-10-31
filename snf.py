@@ -71,6 +71,7 @@ from src.snf_pipeline_revised import plot_silhouette_score
 from src.snf_pipeline_revised import plot_ordered_affinity_matrix
 from src.snf_pipeline_revised import _order_affinity_matrices
 from src.snf_pipeline_revised import _get_list_of_edges
+from src.snf_pipeline_revised import _transform_to_upsetplot_format
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -201,15 +202,6 @@ def main() -> None:
                                      return_dynamic_range=False,
                                      show_axis=False,
                                     )
-    # print(fused_network.max())
-    # print(fused_network.mean())
-    # print(fused_network.std())
-    # print()
-    # for aff in affinity_networks:
-    #     print(aff.max())
-    #     print(aff.mean())
-    #     print(aff.std())
-    #     print()
     print("-----------------------------------------")
     affinity_networks_ordered = _order_affinity_matrices(labels=fused_labels, 
                                                          modality_names=MOD_DIRS, 
@@ -217,7 +209,12 @@ def main() -> None:
     cluster_weights = _get_list_of_edges(labels=fused_labels, 
                                          affinity_networks_ordered=affinity_networks_ordered,
                                          edge_th=1.1)
-    print(cluster_weights[0])
+    
+    list_multi_index_df = _transform_to_upsetplot_format(cluster_weights=cluster_weights,
+                                                      modality_names=MOD_DIRS,
+                                                      verbose=verbose)
+    print(list_multi_index_df)
+
 
 if __name__ == "__main__":
     main()
