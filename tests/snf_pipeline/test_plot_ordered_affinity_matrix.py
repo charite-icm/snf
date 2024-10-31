@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 
 
-from src.snf_pipeline import plot_ordered_affinity_matrix
+from src.snf_pipeline.plot_ordered_affinity_matrix import plot_ordered_affinity_matrix
 
 
 def test_plot_ordered_affinity_matrix_valid(tmp_path):

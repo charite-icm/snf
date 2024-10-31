@@ -11,7 +11,6 @@ from src.snf_pipeline.plot_row_missing_percentage_histogram import plot_row_miss
 from src.snf_pipeline.get_overlapping_modalities import get_overlapping_modalities
 from src.snf_pipeline.save_overlapping_eids import save_overlapping_eids
 from src.snf_pipeline.convert_df_to_np import convert_df_to_np
-
 from src.snf_package.compute import DistanceMetric, snf, get_n_clusters_revised, get_n_clusters
 from src.snf_pipeline.set_affinity_matrix_parameters import set_affinity_matrix_parameters
 from src.snf_pipeline.compute_aff_networks import compute_aff_networks
@@ -20,6 +19,14 @@ from src.snf_pipeline.save_cluster_eids import save_cluster_eids
 from src.snf_pipeline.plot_silhouette_score import plot_silhouette_score
 from src.snf_pipeline.plot_ordered_affinity_matrix import plot_ordered_affinity_matrix
 from src.snf_pipeline.plot_edge_contribution import plot_edge_contribution
+
+
+
+class Snf:
+    pass
+
+
+
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -165,5 +172,4 @@ def main() -> None:
 
 
 
-if __name__ == "__main__":
-    main()
+

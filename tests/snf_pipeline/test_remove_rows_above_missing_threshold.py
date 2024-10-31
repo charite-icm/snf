@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from src.snf_pipeline import remove_rows_above_missing_threshold
+from src.snf_pipeline.remove_rows_above_missing_threshold import remove_rows_above_missing_threshold
 
 def test_remove_rows_above_missing_threshold_default():
     """

@@ -1,5 +1,5 @@
 import pytest
-from src.snf_pipeline import get_optimal_cluster_size
+from src.snf_pipeline.get_optimal_cluster_size import get_optimal_cluster_size
 
 
 # Test cases for get_n_clusters function

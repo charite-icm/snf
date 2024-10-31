@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from src.snf_pipeline import _get_list_of_edges
+from src.snf_pipeline.plot_edge_contribution import _get_list_of_edges
 
 def test_get_list_of_edges_valid():
     labels = [0, 0, 1, 1]

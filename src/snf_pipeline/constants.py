@@ -1,0 +1,5 @@
+EID_NAME = "eid"
+CLUSTER_NAME = "cluster"
+OVERLAPPING_EID_TXT = "overlapping_eids.txt"
+CLUSTER_EIDS_CSV = "cluster_eids.csv"
+SILHOUETTE_SCORE_FIG_NAME = "silhouette_score"

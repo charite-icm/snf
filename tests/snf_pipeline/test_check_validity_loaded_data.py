@@ -1,7 +1,8 @@
 import pandas as pd
 import pytest
 
-from src.snf_pipeline import _check_validity_loaded_data, EID_NAME
+from src.snf_pipeline.check_validity_loaded_data import check_validity_loaded_data
+from src.snf_pipeline.constants import EID_NAME
 
 def test_valid_data():
     """
@@ -13,7 +14,7 @@ def test_valid_data():
     df2 = pd.DataFrame({EID_NAME: [4, 5, 6], "value": [40, 50, 60]})
 
     # Should not raise any exceptions
-    _check_validity_loaded_data((df1, df2))
+    check_validity_loaded_data((df1, df2))
 
 def test_less_than_two_dataframes():
     """
@@ -23,7 +24,7 @@ def test_less_than_two_dataframes():
     df1 = pd.DataFrame({EID_NAME: [1, 2, 3], "value": [10, 20, 30]})
 
     with pytest.raises(ValueError, match="Minimum number of data modalities is 2"):
-        _check_validity_loaded_data((df1,))
+        check_validity_loaded_data((df1,))
 
 def test_invalid_dataframe_type():
     """
@@ -34,7 +35,7 @@ def test_invalid_dataframe_type():
     invalid_data = {EID_NAME: [4, 5, 6], "value": [40, 50, 60]}  # Not a DataFrame
 
     with pytest.raises(TypeError, match="Invalid type of data:"):
-        _check_validity_loaded_data((df1, invalid_data))
+        check_validity_loaded_data((df1, invalid_data))
 
 def test_missing_eid_column():
     """
@@ -45,7 +46,7 @@ def test_missing_eid_column():
     df2 = pd.DataFrame({"id": [4, 5, 6], "value": [40, 50, 60]})  # Missing 'eid' column
 
     with pytest.raises(ValueError, match=f"Column with IDs should be named {EID_NAME}"):
-        _check_validity_loaded_data((df1, df2))
+        check_validity_loaded_data((df1, df2))
 
 def test_duplicate_eid_column():
     """
@@ -56,7 +57,7 @@ def test_duplicate_eid_column():
     df2 = pd.DataFrame({EID_NAME: [4, 5, 6], "value": [40, 50, 60]})
 
     with pytest.raises(ValueError, match=f"Column {EID_NAME} does not contain unique values."):
-        _check_validity_loaded_data((df1, df2))
+        check_validity_loaded_data((df1, df2))
 
 def test_input_not_a_tuple():
     """
@@ -67,4 +68,4 @@ def test_input_not_a_tuple():
 
     # Using a list instead of a tuple
     with pytest.raises(TypeError, match="dfs should be of type tuple not"):
-        _check_validity_loaded_data([df1, df2])  # Passing a list instead of a tuple
+        check_validity_loaded_data([df1, df2])  # Passing a list instead of a tuple

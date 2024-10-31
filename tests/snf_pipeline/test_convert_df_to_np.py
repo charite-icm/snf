@@ -2,7 +2,8 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from src.snf_pipeline import convert_df_to_np, EID_NAME
+from src.snf_pipeline.convert_df_to_np import convert_df_to_np
+from src.snf_pipeline.constants import EID_NAME
 
 def test_convert_df_to_np_valid_input():
     """
