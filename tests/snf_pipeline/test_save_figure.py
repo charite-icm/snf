@@ -5,7 +5,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pytest
 from unittest import mock
-from src.snf_pipeline_revised import save_figure
+from src.snf_pipeline import save_figure
 
 @mock.patch("matplotlib.pyplot.tight_layout")
 @mock.patch("matplotlib.pyplot.close")

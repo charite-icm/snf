@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from src.snf_pipeline_revised import _order_affinity_matrices
+from src.snf_pipeline import _order_affinity_matrices
 
 def test_order_affinity_matrices_valid():
     labels = [2, 0, 1]

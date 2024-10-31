@@ -1,5 +1,5 @@
 import pytest
-from src.snf_pipeline_revised import set_affinity_matrix_parameters
+from src.snf_pipeline import set_affinity_matrix_parameters
 
 def test_set_affinity_matrix_parameters_defaults():
     """

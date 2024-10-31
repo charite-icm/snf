@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.snf_pipeline_revised import _check_validity_loaded_data, EID_NAME
+from src.snf_pipeline import _check_validity_loaded_data, EID_NAME
 
 def test_valid_data():
     """

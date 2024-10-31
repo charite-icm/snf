@@ -55,21 +55,21 @@ import pandas as pd
 from sklearn.cluster import spectral_clustering
 
 
-from src.snf_pipeline_revised import _check_validity_loaded_data
-from src.snf_pipeline_revised import remove_rows_above_missing_threshold
-from src.snf_pipeline_revised import plot_row_missing_percentage_histogram
-from src.snf_pipeline_revised import get_overlapping_modalities
-from src.snf_pipeline_revised import save_overlapping_eids
-from src.snf_pipeline_revised import convert_df_to_np
+from src.snf_pipeline import _check_validity_loaded_data
+from src.snf_pipeline import remove_rows_above_missing_threshold
+from src.snf_pipeline import plot_row_missing_percentage_histogram
+from src.snf_pipeline import get_overlapping_modalities
+from src.snf_pipeline import save_overlapping_eids
+from src.snf_pipeline import convert_df_to_np
 
 from src.snf_package.compute import DistanceMetric, snf, get_n_clusters_revised, get_n_clusters
-from src.snf_pipeline_revised import set_affinity_matrix_parameters
-from src.snf_pipeline_revised import compute_aff_networks
-from src.snf_pipeline_revised import get_optimal_cluster_size
-from src.snf_pipeline_revised import save_cluster_eids
-from src.snf_pipeline_revised import plot_silhouette_score
-from src.snf_pipeline_revised import plot_ordered_affinity_matrix
-from src.snf_pipeline_revised import plot_edge_contribution
+from src.snf_pipeline import set_affinity_matrix_parameters
+from src.snf_pipeline import compute_aff_networks
+from src.snf_pipeline import get_optimal_cluster_size
+from src.snf_pipeline import save_cluster_eids
+from src.snf_pipeline import plot_silhouette_score
+from src.snf_pipeline import plot_ordered_affinity_matrix
+from src.snf_pipeline import plot_edge_contribution
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -83,8 +83,8 @@ def main() -> None:
     dfs = tuple([pd.read_feather(path) for path in paths])
     
     # # TODO: temporary for faster testing
-    # dfs = tuple([*dfs[:-1], dfs[-1].iloc[:, :200]])
-    # print([df.shape for df in dfs])
+    dfs = tuple([*dfs[:-1], dfs[-1].iloc[:, :200]])
+    print([df.shape for df in dfs])
 
     save_path = Path("results/test_revised")
     save_path_histogram = os.path.join(save_path, "histogram_missing_percentage")
@@ -213,6 +213,9 @@ def main() -> None:
                            verbose=verbose)
     print("-----------------------------------------")
     
+
+
+
 
 if __name__ == "__main__":
     main()

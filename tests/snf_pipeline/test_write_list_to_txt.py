@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from src.snf_pipeline_revised import _write_list_to_txt
+from src.snf_pipeline import _write_list_to_txt
 
 def test_write_list_to_txt_valid_input(tmp_path):
     """

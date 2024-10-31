@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from src.snf_pipeline_revised import _transform_to_upsetplot_format
+from src.snf_pipeline import _transform_to_upsetplot_format
 
 
 def test_transform_to_upsetplot_format_valid():

@@ -1,4 +1,4 @@
-from src.snf_pipeline_revised import save_cluster_eids, EID_NAME, CLUSTER_NAME, CLUSTER_EIDS_CSV
+from src.snf_pipeline import save_cluster_eids, EID_NAME, CLUSTER_NAME, CLUSTER_EIDS_CSV
 
 import pytest
 import pandas as pd

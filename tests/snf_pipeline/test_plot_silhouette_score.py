@@ -3,7 +3,7 @@ import numpy as np
 import os
 from pathlib import Path
 
-from src.snf_pipeline_revised import plot_silhouette_score, SILHOUETTE_SCORE_FIG_NAME
+from src.snf_pipeline import plot_silhouette_score, SILHOUETTE_SCORE_FIG_NAME
 
 
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.snf_pipeline_revised import get_overlapping_modalities, EID_NAME
+from src.snf_pipeline import get_overlapping_modalities, EID_NAME
 
 
 def test_overlapping_modalities():
@@ -71,8 +71,8 @@ def test_different_eid_column(monkeypatch):
     df2 = pd.DataFrame({eid_name: [3, 4, 5], 'data2': [300, 400, 500]})
 
     # Use monkeypatch to temporarily set EID_NAME to 'id' in the module
-    from src import snf_pipeline_revised
-    monkeypatch.setattr(snf_pipeline_revised, 'EID_NAME', eid_name)
+    from src import snf_pipeline
+    monkeypatch.setattr(snf_pipeline, 'EID_NAME', eid_name)
 
     overlapping_dfs = get_overlapping_modalities((df1, df2))
     expected_eids = [3]
