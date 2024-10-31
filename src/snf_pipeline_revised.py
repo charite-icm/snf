@@ -968,7 +968,171 @@ def plot_ordered_affinity_matrix(network: np.ndarray,
 
 
 
-def plot_upset():
-    # Ensure the version of upset library (0.9.0)
-    ...
+
+
+
+# def plot_edge_contribution(edge_th: float = 1.1) -> None:
+#     _get_list_of_edges()
+#     _transform_to_upsetplot_format()
+#     _plot_upset()
+
+
+
+
+def _order_affinity_matrices(labels: list[int], 
+                             modality_names: tuple[str], 
+                             affinity_networks: tuple[np.ndarray]) -> dict[str, np.ndarray]:
+    """
+    Order affinity matrices based on the provided cluster labels.
+
+    Parameters
+    ----------
+    labels : list of int
+        List of cluster labels indicating the ordering of nodes.
+    modality_names : tuple of str
+        Tuple containing the names of each modality corresponding to the affinity networks.
+    affinity_networks : tuple of np.ndarray
+        Tuple containing the affinity matrices for each modality. Each matrix must be square.
+
+    Returns
+    -------
+    dict of str, np.ndarray
+        Dictionary with modality names as keys and ordered affinity matrices as values.
+
+    Raises
+    ------
+    ValueError
+        If the length of `modality_names` and `affinity_networks` do not match, or if
+        any matrix in `affinity_networks` is not square.
+    ValueError
+        If the length of `labels` does not match the dimension of the affinity matrices.
+
+    Example
+    -------
+    >>> labels = [2, 0, 1]
+    >>> modality_names = ("Mod1", "Mod2")
+    >>> affinity_networks = (np.random.rand(3, 3), np.random.rand(3, 3))
+    >>> ordered_matrices = _order_affinity_matrices(labels, modality_names, affinity_networks)
+    """
+    # Validate input lengths
+    if len(modality_names) != len(affinity_networks):
+        raise ValueError("The number of modality names must match the number of affinity networks.")
+    
+    for aff in affinity_networks:
+        if aff.shape[0] != aff.shape[1]:
+            raise ValueError("All affinity networks must be square matrices.")
+        if aff.shape[0] != len(labels):
+            raise ValueError("The length of `labels` must match the dimension of the affinity matrices.")
+    
+    # Order the affinity matrices
+    indexing_array = np.argsort(labels)
+    affinity_networks_ordered: dict[str: np.ndarray] = {}
+
+    for modality, aff in zip(modality_names, affinity_networks):
+        network = np.copy(aff)
+        np.fill_diagonal(network, 0)
+        # We remove the diagonal elements which could greatly influence the normalization factor
+        # (they are not constant on the diagonal)
+        network /= np.nansum(network, axis=1, keepdims=True)
+        np.fill_diagonal(network, 1)
+
+        # Order rows and columns according to `labels`
+        network_ordered = network[indexing_array][:, indexing_array]
+        affinity_networks_ordered[modality] = network_ordered
+
+    return affinity_networks_ordered
+
+
+
+def _get_list_of_edges(labels: list[int], 
+                       affinity_networks_ordered: dict[str, np.ndarray], 
+                       edge_th: float = 1.1) -> dict[int, list[list[int]]]:
+    
+    unique_elements, elements_counts = np.unique(labels, return_counts=True)
+    end_idxs = list(np.cumsum(elements_counts))
+    start_idxs = [0, *end_idxs[:-1]]
+
+    cluster_weights = {}
+    for clust, (st, end) in enumerate(zip(start_idxs, end_idxs)):
+        cluster_weights[clust] = []
+        for i in range(st, end):
+            for j in range(i, end):
+                sim_values = np.array([affinity_networks_ordered[mod][i][j] for mod in affinity_networks_ordered])
+
+                max_sim_arg = np.argmax(sim_values)
+                percentage = sim_values[max_sim_arg] / np.array(sim_values)
+
+                non_zero_indices = np.nonzero(percentage < edge_th)[0]
+                cluster_weights[clust].append(list(non_zero_indices))
+
+    return cluster_weights
+
+
+
+def _transform_to_upsetplot_format() -> None:
+    source_names = [mod.value.split("_")[0] for mod in self.modalities]
+
+    combination_list = []
+    for i in range(1, len(source_names) + 1):
+        combination_list.extend(list(combinations(range(len(source_names)), i)))
+    combination_list = [list(el) for el in combination_list]
+
+    self.list_of_df_edges = []
+    for key, item in self.cluster_weights.items():
+        print_str = f"Cluster {str(key)}\n----------------\n"
+        for i in range(len(combination_list)):
+            bool_list = [combination_list[i] == list(el) for el in item]
+            print_str += f"{[source_names[el] for el in combination_list[i]]}: {int(100 * np.sum(bool_list) / len(bool_list))} %\n"
+
+        list_edges = []
+        for el in item:
+            add_list = [count in el for count in range(len(source_names))]
+            list_edges.append(add_list)
+
+        self.list_of_df_edges.append(pd.DataFrame(list_edges, columns=source_names))
+    self.source_names = source_names
+
+
+def _plot_upset() -> None:
+    fig_list = []
+    for i, df in enumerate(self.list_of_df_edges):
+
+        df = df.groupby(self.source_names).size()
+
+        df_save = pd.DataFrame(df).rename(columns={0: "Number of edges"})
+        df_save["Percentage of edges"] = df_save["Number of edges"] / df_save["Number of edges"].sum() * 100
+        UtilsPandas.save_csv(df_save, os.path.join(RESULTS_PATH, self.fused_path, FoldersEnum.AFFINITY.value, f"upsetplot_clust_{i}.csv"), index=True)
+
+        df = df.rename_axis(index={"physiology": "phenomics"})
+        # percentage_sizes = (df / df.sum()) * 100
+        fig = plt.figure(figsize=(10.0, 6.0))
+        upsplot(df, fig=fig, show_percentages=True, element_size=None, sort_categories_by="input")
+        fig_list.append(fig)
+        save_figure(fig,
+                    fig_name=os.path.join(RESULTS_PATH, self.fused_path, FoldersEnum.AFFINITY.value, f"upsetplot_clust_{i}"),
+                    plt_close=True)
+    # 13, 8
+    big_fig = plt.figure(figsize=(6.0, 6.0))
+    for i, fig in enumerate(fig_list):
+        ax = big_fig.add_subplot((len(fig_list) + 1) // 2, 2, i + 1)
+        ax.set_title(f"Cluster {i + 1}", fontweight="bold")
+
+        ax.set_xticks([])  # Remove x-axis ticks
+        ax.set_yticks([])  # Remove y-axis ticks
+        ax.imshow(fig.canvas.buffer_rgba(), origin="upper")
+
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+
+    figure_path = os.path.join(RESULTS_PATH, self.fused_path, FoldersEnum.AFFINITY.value, f"upsetplot")
+    # save_plot_as_vector(big_fig, format="pdf", dpi=600, output_path=f"{figure_path}.pdf")
+    # save_plot_as_tiff(big_fig, column_type="double", dpi=600, output_path=f"{figure_path}.tiff")
+    save_figure(big_fig, fig_name=f"{figure_path}.png", plt_close=True)
+
+
+
+
+
 
