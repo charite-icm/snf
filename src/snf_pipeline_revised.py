@@ -9,6 +9,7 @@ from itertools import combinations
 
 from sklearn.cluster import spectral_clustering
 from sklearn.metrics import silhouette_score
+from upsetplot import plot as upsplot
 
 
 from typing import Any, Callable
@@ -1111,7 +1112,7 @@ def _get_list_of_edges(labels: list[int],
 
 def _transform_to_upsetplot_format(cluster_weights: dict[int, list[list[int]]],
                                    modality_names: tuple[str],
-                                   verbose: bool = False) -> list[pd.DataFrame]:
+                                   verbose: bool = False) -> list[pd.MultiIndex]:
     """
     Transform cluster weights into a format suitable for creating UpSet plots.
 
@@ -1184,46 +1185,41 @@ def _transform_to_upsetplot_format(cluster_weights: dict[int, list[list[int]]],
 
 
 
-def _plot_upset() -> None:
+def _plot_upset(list_multi_index_df: pd.MultiIndex,
+                save_path: str | Path,
+                verbose: bool = False) -> None:
     fig_list = []
-    for i, df in enumerate(self.list_of_df_edges):
-
-        df = df.groupby(self.source_names).size()
-
+    for i, df in enumerate(list_multi_index_df):
         df_save = pd.DataFrame(df).rename(columns={0: "Number of edges"})
         df_save["Percentage of edges"] = df_save["Number of edges"] / df_save["Number of edges"].sum() * 100
-        UtilsPandas.save_csv(df_save, os.path.join(RESULTS_PATH, self.fused_path, FoldersEnum.AFFINITY.value, f"upsetplot_clust_{i}.csv"), index=True)
+        df_save.to_csv(os.path.join(save_path, f"upsetplot_clust_{i}.csv"), index=True)
 
-        df = df.rename_axis(index={"physiology": "phenomics"})
-        # percentage_sizes = (df / df.sum()) * 100
         fig = plt.figure(figsize=(10.0, 6.0))
         upsplot(df, fig=fig, show_percentages=True, element_size=None, sort_categories_by="input")
         fig_list.append(fig)
-        save_figure(fig,
-                    fig_name=os.path.join(RESULTS_PATH, self.fused_path, FoldersEnum.AFFINITY.value, f"upsetplot_clust_{i}"),
-                    plt_close=True)
+        save_figure(fig, fig_name=os.path.join(save_path, f"upsetplot_clust_{i}"), plt_close=True, verbose=verbose)
+
+
+    # TODO: save all upset plots in one figure
     # 13, 8
-    big_fig = plt.figure(figsize=(6.0, 6.0))
-    for i, fig in enumerate(fig_list):
-        ax = big_fig.add_subplot((len(fig_list) + 1) // 2, 2, i + 1)
-        ax.set_title(f"Cluster {i + 1}", fontweight="bold")
+    # big_fig = plt.figure(figsize=(6.0, 6.0))
+    # for i, fig in enumerate(fig_list):
+    #     ax = big_fig.add_subplot((len(fig_list) + 1) // 2, 2, i + 1)
+    #     ax.set_title(f"Cluster {i + 1}", fontweight="bold")
 
-        ax.set_xticks([])  # Remove x-axis ticks
-        ax.set_yticks([])  # Remove y-axis ticks
-        ax.imshow(fig.canvas.buffer_rgba(), origin="upper")
+    #     ax.set_xticks([])  # Remove x-axis ticks
+    #     ax.set_yticks([])  # Remove y-axis ticks
+    #     ax.imshow(fig.canvas.buffer_rgba(), origin="upper")
 
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        ax.spines["bottom"].set_visible(False)
-        ax.spines["left"].set_visible(False)
+    #     ax.spines["top"].set_visible(False)
+    #     ax.spines["right"].set_visible(False)
+    #     ax.spines["bottom"].set_visible(False)
+    #     ax.spines["left"].set_visible(False)
 
-    figure_path = os.path.join(RESULTS_PATH, self.fused_path, FoldersEnum.AFFINITY.value, f"upsetplot")
-    # save_plot_as_vector(big_fig, format="pdf", dpi=600, output_path=f"{figure_path}.pdf")
-    # save_plot_as_tiff(big_fig, column_type="double", dpi=600, output_path=f"{figure_path}.tiff")
-    save_figure(big_fig, fig_name=f"{figure_path}.png", plt_close=True)
-
-
-
+    # figure_path = os.path.join(RESULTS_PATH, self.fused_path, FoldersEnum.AFFINITY.value, f"upsetplot")
+    # # save_plot_as_vector(big_fig, format="pdf", dpi=600, output_path=f"{figure_path}.pdf")
+    # # save_plot_as_tiff(big_fig, column_type="double", dpi=600, output_path=f"{figure_path}.tiff")
+    # save_figure(big_fig, fig_name=f"{figure_path}.png", plt_close=True)
 
 
 

@@ -72,6 +72,7 @@ from src.snf_pipeline_revised import plot_ordered_affinity_matrix
 from src.snf_pipeline_revised import _order_affinity_matrices
 from src.snf_pipeline_revised import _get_list_of_edges
 from src.snf_pipeline_revised import _transform_to_upsetplot_format
+from src.snf_pipeline_revised import _plot_upset
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -84,17 +85,19 @@ def main() -> None:
     paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]
     dfs = tuple([pd.read_feather(path) for path in paths])
     
-    # TODO: temporary for faster testing
-    dfs = tuple([*dfs[:-1], dfs[-1].iloc[:, :200]])
-    print([df.shape for df in dfs])
+    # # TODO: temporary for faster testing
+    # dfs = tuple([*dfs[:-1], dfs[-1].iloc[:, :200]])
+    # print([df.shape for df in dfs])
 
     save_path = Path("results/test_revised")
     save_path_histogram = os.path.join(save_path, "histogram_missing_percentage")
     save_path_fused = os.path.join(save_path, "fused")
+    save_path_upset = os.path.join(save_path, "upset_plots")
 
     os.makedirs(save_path, exist_ok=True)
     os.makedirs(save_path_histogram, exist_ok=True)
     os.makedirs(save_path_fused, exist_ok=True)
+    os.makedirs(save_path_upset, exist_ok=True)
     
 
     plot_missing_percentage = True 
@@ -119,7 +122,7 @@ def main() -> None:
     dfs_after_th_nan = tuple(dfs_after_th_nan)
 
     dfs_after_modality_intersection = get_overlapping_modalities(dfs_after_th_nan)
-    overlapped_eids = save_overlapping_eids(dfs=dfs_after_modality_intersection, save_path=save_path, verbose=verbose)    
+    overlapped_eids = save_overlapping_eids(dfs=dfs_after_modality_intersection, save_path=save_path_histogram, verbose=verbose)    
     np_arrs = convert_df_to_np(dfs_after_modality_intersection)
 
     # convert omics to linear scale
@@ -213,8 +216,11 @@ def main() -> None:
     list_multi_index_df = _transform_to_upsetplot_format(cluster_weights=cluster_weights,
                                                       modality_names=MOD_DIRS,
                                                       verbose=verbose)
-    print(list_multi_index_df)
-
+    _plot_upset(list_multi_index_df=list_multi_index_df,
+                save_path=save_path_upset,
+                verbose=verbose)
+    print("-----------------------------------------")
+    
 
 if __name__ == "__main__":
     main()
