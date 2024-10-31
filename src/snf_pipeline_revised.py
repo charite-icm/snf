@@ -683,15 +683,6 @@ def compute_aff_networks(arrs: tuple[np.ndarray], param: dict[str, Any]) -> tupl
     return tuple(affinity_networks)
 
 
-# def compute_fused_network():
-#     ...
-
-
-# def get_n_clusters_revised():
-#     # if number of clusters not preselected, select from the eigengap metric
-#     ...
-
-
 def get_optimal_cluster_size(n_clusters: int | None, nb_clusters: list[int]) -> int:
     """
     Determine the number of clusters to use based on input parameters.
@@ -743,10 +734,6 @@ def get_optimal_cluster_size(n_clusters: int | None, nb_clusters: list[int]) -> 
     if nb_clusters[0] != 1:
         return nb_clusters[0]
     return nb_clusters[1]
-
-      
-# def apply_spectral_clustering_on_fused_network():
-#     ...
 
 
 def save_cluster_eids(
@@ -969,18 +956,27 @@ def plot_ordered_affinity_matrix(network: np.ndarray,
         return vmin, vmax
 
 
-
-
-
-
-
-# def plot_edge_contribution(edge_th: float = 1.1) -> None:
-#     _get_list_of_edges()
-#     _transform_to_upsetplot_format()
-#     _plot_upset()
-
-
-
+def plot_edge_contribution(labels: list[int],
+                           modality_names: list[str],
+                           affinity_networks: tuple[np.ndarray],
+                           save_path: str | Path,
+                           edge_th: float = 1.1,
+                           verbose: bool = False) -> None:
+    affinity_networks_ordered = _order_affinity_matrices(labels=labels, 
+                                                         modality_names=modality_names, 
+                                                         affinity_networks=affinity_networks)
+    cluster_weights = _get_list_of_edges(labels=labels, 
+                                         affinity_networks_ordered=affinity_networks_ordered,
+                                         edge_th=edge_th)
+    
+    list_multi_index_df = _transform_to_upsetplot_format(cluster_weights=cluster_weights,
+                                                         modality_names=modality_names,
+                                                         verbose=verbose)
+    _plot_upset(list_multi_index_df=list_multi_index_df,
+                save_path=save_path,
+                verbose=verbose)
+    
+    
 
 def _order_affinity_matrices(labels: list[int], 
                              modality_names: tuple[str], 
@@ -1046,7 +1042,6 @@ def _order_affinity_matrices(labels: list[int],
     return affinity_networks_ordered
 
 
-
 def _get_list_of_edges(labels: list[int], 
                        affinity_networks_ordered: dict[str, np.ndarray], 
                        edge_th: float = 1.1) -> dict[int, list[list[int]]]:
@@ -1107,7 +1102,6 @@ def _get_list_of_edges(labels: list[int],
                 cluster_weights[clust].append(list(non_zero_indices_list))
 
     return cluster_weights
-
 
 
 def _transform_to_upsetplot_format(cluster_weights: dict[int, list[list[int]]],
@@ -1184,7 +1178,6 @@ def _transform_to_upsetplot_format(cluster_weights: dict[int, list[list[int]]],
     return list_multi_index_df
 
 
-
 def _plot_upset(list_multi_index_df: pd.MultiIndex,
                 save_path: str | Path,
                 verbose: bool = False) -> None:
@@ -1220,6 +1213,4 @@ def _plot_upset(list_multi_index_df: pd.MultiIndex,
     # # save_plot_as_vector(big_fig, format="pdf", dpi=600, output_path=f"{figure_path}.pdf")
     # # save_plot_as_tiff(big_fig, column_type="double", dpi=600, output_path=f"{figure_path}.tiff")
     # save_figure(big_fig, fig_name=f"{figure_path}.png", plt_close=True)
-
-
 

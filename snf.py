@@ -69,10 +69,7 @@ from src.snf_pipeline_revised import get_optimal_cluster_size
 from src.snf_pipeline_revised import save_cluster_eids
 from src.snf_pipeline_revised import plot_silhouette_score
 from src.snf_pipeline_revised import plot_ordered_affinity_matrix
-from src.snf_pipeline_revised import _order_affinity_matrices
-from src.snf_pipeline_revised import _get_list_of_edges
-from src.snf_pipeline_revised import _transform_to_upsetplot_format
-from src.snf_pipeline_revised import _plot_upset
+from src.snf_pipeline_revised import plot_edge_contribution
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -148,6 +145,8 @@ def main() -> None:
     t = 20
     alpha = 1
     top_k = 20
+    edge_th = 1.1
+
     fused_network = snf(affinity_networks, K=param["K_actual"], t=t, alpha=alpha) # TODO: add t, alpha to param
     print("-----------------------------------------")
     print(f"Fused matrix with shape {fused_network.shape} generated.")
@@ -206,19 +205,12 @@ def main() -> None:
                                      show_axis=False,
                                     )
     print("-----------------------------------------")
-    affinity_networks_ordered = _order_affinity_matrices(labels=fused_labels, 
-                                                         modality_names=MOD_DIRS, 
-                                                         affinity_networks=affinity_networks)
-    cluster_weights = _get_list_of_edges(labels=fused_labels, 
-                                         affinity_networks_ordered=affinity_networks_ordered,
-                                         edge_th=1.1)
-    
-    list_multi_index_df = _transform_to_upsetplot_format(cluster_weights=cluster_weights,
-                                                      modality_names=MOD_DIRS,
-                                                      verbose=verbose)
-    _plot_upset(list_multi_index_df=list_multi_index_df,
-                save_path=save_path_upset,
-                verbose=verbose)
+    plot_edge_contribution(labels=fused_labels,
+                           modality_names=MOD_DIRS,
+                           affinity_networks=affinity_networks,
+                           save_path=save_path_upset,
+                           edge_th=edge_th,
+                           verbose=verbose)
     print("-----------------------------------------")
     
 
