@@ -70,6 +70,7 @@ from src.snf_pipeline_revised import save_cluster_eids
 from src.snf_pipeline_revised import plot_silhouette_score
 from src.snf_pipeline_revised import plot_ordered_affinity_matrix
 from src.snf_pipeline_revised import _order_affinity_matrices
+from src.snf_pipeline_revised import _get_list_of_edges
 
 
 DATA_PATH = "data/hfmodelexport_metab_prot_img_05_15_2024"
@@ -210,9 +211,13 @@ def main() -> None:
     #     print(aff.std())
     #     print()
     print("-----------------------------------------")
-    ordered_affinity_networks = _order_affinity_matrices(labels=fused_labels, modality_names=MOD_DIRS, affinity_networks=affinity_networks)
-    print(ordered_affinity_networks)
-
+    affinity_networks_ordered = _order_affinity_matrices(labels=fused_labels, 
+                                                         modality_names=MOD_DIRS, 
+                                                         affinity_networks=affinity_networks)
+    cluster_weights = _get_list_of_edges(labels=fused_labels, 
+                                         affinity_networks_ordered=affinity_networks_ordered,
+                                         edge_th=1.1)
+    print(cluster_weights[0])
 
 if __name__ == "__main__":
     main()

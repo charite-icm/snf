@@ -1047,8 +1047,44 @@ def _order_affinity_matrices(labels: list[int],
 def _get_list_of_edges(labels: list[int], 
                        affinity_networks_ordered: dict[str, np.ndarray], 
                        edge_th: float = 1.1) -> dict[int, list[list[int]]]:
-    
-    unique_elements, elements_counts = np.unique(labels, return_counts=True)
+    """
+    Generate a list of edges for each cluster based on similarity values 
+    from multiple affinity networks and a specified threshold.
+
+    Parameters
+    ----------
+    labels : list of int
+        List of cluster labels indicating the cluster membership of each element.
+    affinity_networks_ordered : dict of str, np.ndarray
+        Dictionary with modality names as keys and their corresponding ordered affinity matrices.
+    edge_th : float, optional
+        Threshold for determining significant differences in similarity values. 
+        Default is 1.1.
+
+    Returns
+    -------
+    dict of int, list of list of int
+        Dictionary where each key represents a cluster and the value is a list of lists.
+        Each inner list contains the indices of modalities where the similarity value
+        is the highest. Multiple modalities can be in the list 
+        if max_sim_val/mod_sim_val < edge_th
+
+    Raises
+    ------
+    ValueError
+        If `labels` length does not match the dimension of any matrix in `affinity_networks_ordered`.
+    ValueError
+        If any matrix in `affinity_networks_ordered` is not square.
+
+    """
+    # Validate that the length of `labels` matches the dimensions of the matrices
+    for modality, matrix in affinity_networks_ordered.items():
+        if matrix.shape[0] != matrix.shape[1]:
+            raise ValueError(f"Affinity matrix for {modality} must be square.")
+        if len(labels) != matrix.shape[0]:
+            raise ValueError("The length of `labels` must match the dimension of the affinity matrices.")
+
+    _, elements_counts = np.unique(labels, return_counts=True)
     end_idxs = list(np.cumsum(elements_counts))
     start_idxs = [0, *end_idxs[:-1]]
 
@@ -1056,14 +1092,16 @@ def _get_list_of_edges(labels: list[int],
     for clust, (st, end) in enumerate(zip(start_idxs, end_idxs)):
         cluster_weights[clust] = []
         for i in range(st, end):
-            for j in range(i, end):
+            # for j in range(i, end):
+            for j in range(i + 1, end):
                 sim_values = np.array([affinity_networks_ordered[mod][i][j] for mod in affinity_networks_ordered])
 
                 max_sim_arg = np.argmax(sim_values)
                 percentage = sim_values[max_sim_arg] / np.array(sim_values)
 
                 non_zero_indices = np.nonzero(percentage < edge_th)[0]
-                cluster_weights[clust].append(list(non_zero_indices))
+                non_zero_indices_list = [int(el) for el in non_zero_indices]
+                cluster_weights[clust].append(list(non_zero_indices_list))
 
     return cluster_weights
 
