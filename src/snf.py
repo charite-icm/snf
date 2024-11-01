@@ -98,9 +98,6 @@ class Snf:
         overlapped_eids = save_overlapping_eids(dfs=dfs_after_modality_intersection, save_path=self.save_path_histogram, verbose=self.verbose)    
         np_arrs = convert_df_to_np(dfs_after_modality_intersection)
 
-        # TODO: temporary for testing, remove later
-        # convert omics to linear scale 
-        np_arrs = tuple([2**np_arr if mod == "pro" else np_arr for np_arr, mod in zip(np_arrs, self.mod_names)])
         
         n = int(np_arrs[0].shape[0])
         param = set_affinity_matrix_parameters(n=n, metric=self.metric, K=self.K, mu=self.mu, normalize=self.normalize, th_nan=self.th_nan)
