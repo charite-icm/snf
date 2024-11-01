@@ -74,7 +74,8 @@ def compute_aff_networks(arrs: tuple[np.ndarray], param: dict[str, Any], verbose
 
     affinity_networks = func_(*arrs,
                               metric=param["metric"], K=param["K_actual"],
-                              mu=param["mu"], normalize=param["normalize"])
+                              mu=param["mu"], normalize=param["normalize"],
+                              verbose=verbose)
 
     # Normalize each affinity matrix by the row sum
     affinity_networks = [w / np.nansum(w, axis=1, keepdims=True) for w in affinity_networks]

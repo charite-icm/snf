@@ -27,7 +27,7 @@ DIR_UPSET = "upset_plots"
 
 class Snf:
     def __init__(self,
-                 data_paths: tuple[str | Path],
+                 dfs: tuple[pd.DataFrame],
                  mod_names: tuple[str],
                  save_path: str = "results",
                  plot_missing_percentage = True, 
@@ -35,7 +35,7 @@ class Snf:
                  random_state: int = 41,
                  n_clusters: int | None = 6,
                  verbose: bool = True) -> None:
-        self.data_paths = data_paths
+        self.dfs = dfs
         self.mod_names = mod_names
         self.save_path = save_path
         self.plot_missing_percentage = plot_missing_percentage
@@ -80,12 +80,11 @@ class Snf:
 
 
     def main(self) -> None:
-        dfs = tuple([pd.read_feather(path) for path in self.data_paths])
-        check_validity_loaded_data(dfs=dfs)
+        check_validity_loaded_data(dfs=self.dfs)
 
         # Remove rows where the proportion of missing values exceeds the threshold
         dfs_after_th_nan = []
-        for df, modality_name in zip(dfs, self.mod_names):
+        for df, modality_name in zip(self.dfs, self.mod_names):
             df_cleaned, row_missing_percentage = remove_rows_above_missing_threshold(df, th_nan=self.th_nan, verbose=self.verbose)
             dfs_after_th_nan.append(df_cleaned)
 
@@ -193,7 +192,7 @@ class Snf:
                                edge_th=self.edge_th,
                                verbose=self.verbose)
         _print_line(self.verbose)
-        
+
 
 def _print_line(verbose: bool) -> bool:
     if verbose:

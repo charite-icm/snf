@@ -1,5 +1,5 @@
 import os 
-
+import pandas as pd
 
 from src.snf import Snf, DistanceMetric
 
@@ -12,10 +12,12 @@ FEATHER_NAME = "ever_hfpef_suspect_noimg.feather"
 
 def main() -> None:
     paths = [os.path.join(DATA_PATH, mod_dir, FEATHER_NAME) for mod_dir in MOD_DIRS]
+    dfs = tuple([pd.read_feather(path) for path in paths])
+
     mod_names = ("lab", "met", "phe", "pro")
     save_path = "results/test_revised"
 
-    snf = Snf(data_paths=paths, mod_names=mod_names, save_path=save_path,
+    snf = Snf(dfs=dfs, mod_names=mod_names, save_path=save_path,
               plot_missing_percentage=True, th_nan=0.3, random_state=41,
               n_clusters=6, verbose=True)
     
