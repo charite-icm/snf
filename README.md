@@ -13,7 +13,7 @@ This codebase was originally cloned from [snfpy](https://github.com/rmarkello/sn
 To use this SNF implementation, clone this repository and install the necessary dependencies:
 
 ```bash
-git clone https://github.com/jakobVer/snf.git
+git clone https://github.com/charite-icm/snf.git
 cd snf
 pip install -r requirements.txt
 ```
