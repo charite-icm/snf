@@ -10,7 +10,7 @@ import os
 
 
 def plot_row_missing_percentage_histogram(row_missing_percentage: pd.DataFrame, th_nan: float, modality_name: str,
-                                          save_path: str, col_name="missing_percentage") -> None:
+                                          save_path: str, col_name="missing_percentage", verbose: bool = False) -> None:
     """
     Plot a histogram to visualize the percentage of missing data per row in the given DataFrame and save the plot.
 
@@ -70,4 +70,4 @@ def plot_row_missing_percentage_histogram(row_missing_percentage: pd.DataFrame, 
 
     ax.axvline(x=th_nan*100, color="red", linestyle="--", label="th_nan")
     ax.legend()
-    save_figure(fig, os.path.join(save_path, modality_name), plt_close=True)
+    save_figure(fig, os.path.join(save_path, modality_name), plt_close=True, verbose=verbose)

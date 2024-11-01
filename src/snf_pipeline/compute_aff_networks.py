@@ -7,7 +7,7 @@ import numpy as np
 from typing import Any, Callable
 
 
-def compute_aff_networks(arrs: tuple[np.ndarray], param: dict[str, Any]) -> tuple[np.ndarray]:
+def compute_aff_networks(arrs: tuple[np.ndarray], param: dict[str, Any], verbose: bool = False) -> tuple[np.ndarray]:
     """
     Compute affinity networks based on input arrays using either standard or 
     nan-aware affinity functions, and normalize the resulting affinity matrices.

@@ -19,7 +19,7 @@ def plot_ordered_affinity_matrix(network: np.ndarray,
                                  dynamic_range: tuple[float, float] = None,
                                  return_dynamic_range: bool = False,
                                  show_axis: bool = False,
-                                 verbose: bool = True,
+                                 verbose: bool = False,
                                 #  high_quality: bool = False
                                  ) -> None | tuple[float, float]:
     """
