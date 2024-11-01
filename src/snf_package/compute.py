@@ -51,7 +51,8 @@ def make_affinity(*data,
                   metric: str = DistanceMetric.SQEUCLIDEAN.value,
                   K: int = 20,
                   mu: float = 0.5,
-                  normalize: bool = True):
+                  normalize: bool = True,
+                  verbose: bool = False):
     r"""
     Constructs affinity (i.e., similarity) matrix from `data`
 
@@ -138,6 +139,8 @@ def make_affinity(*data,
         # construct distance matrix using `metric` and make affinity matrix
         distance = cdist(zarr, zarr, metric=met)
         affinity += [affinity_matrix(distance, K=K, mu=mu)]
+        if verbose:
+            print(f"{i+1}. distance matrix computed!")
 
     # match input type (if only one array provided, return array not list)
     if len(data) == 1 and not isinstance(data[0], list):
@@ -166,9 +169,9 @@ def make_affinity_nan(*data,
         # construct distance matrix using `metric` and make affinity matrix
         # distance = cdist(zarr, zarr, metric=_euclidean_distance_nan)
         distance = nan_euclidean_distances(zarr, zarr)
+        affinity += [affinity_matrix(distance, K=K, mu=mu)]
         if verbose:
             print(f"{i+1}. distance matrix computed!")
-        affinity += [affinity_matrix(distance, K=K, mu=mu)]
 
     # match input type (if only one array provided, return array not list)
     if len(data) == 1 and not isinstance(data[0], list):
