@@ -96,7 +96,8 @@ def plot_ordered_affinity_matrix(network: np.ndarray,
     np.fill_diagonal(visualize_network, 1)
     visualize_network_ordered = visualize_network[indexing_array][:, indexing_array]
 
-    vmin, vmax = mean_sim - dynamic_range_th[0] * max_sim, mean_sim + dynamic_range_th[1] * max_sim
+    # vmin, vmax = mean_sim - dynamic_range_th[0] * max_sim, mean_sim + dynamic_range_th[1] * max_sim
+    vmin, vmax = 0, mean_sim + dynamic_range_th[1] * max_sim
     if dynamic_range is not None:
         vmin, vmax = dynamic_range
 

@@ -120,9 +120,9 @@ class Snf:
 
         nb_clusters, eigenvalues, eigenvectors = get_n_clusters_revised(fused_network, plot_path=os.path.join(self.save_path_fused, "eigenvalues.png"), 
                                                                         top_k=self.top_k, verbose=self.verbose)
-        _print_line(self.verbose)
-        if self.verbose:
-            print(f"Optimal number of clusters: {nb_clusters}") # TODO: check with toydata!!!
+        # _print_line(self.verbose)
+        # if self.verbose:
+        #     print(f"Optimal number of clusters: {nb_clusters}") # TODO: check with toydata!!!
         nb_clusters = get_n_clusters(fused_network, n_clusters=range(2, self.top_k))
         if self.verbose:
             print(f"Optimal number of clusters: {nb_clusters}") # TODO: check with toydata!!!
@@ -157,7 +157,7 @@ class Snf:
                                                      labels=fused_labels,
                                                      figure_path=os.path.join(self.save_path_fused, "aff_fused"),
                                                      title=None,
-                                                     dynamic_range_th=(0.1, 0.1),
+                                                     dynamic_range_th=(0.3, 0.3),
                                                      figsize=(8.0, 8.0),
                                                      show_colorbar=False,
                                                      plt_close=True,
@@ -172,7 +172,7 @@ class Snf:
                                          labels=fused_labels,
                                          figure_path=os.path.join(self.save_path_fused, f"aff_{modality}"),
                                          title=None,
-                                         dynamic_range_th=(0.1, 0.1),
+                                         dynamic_range_th=(0.3, 0.3),
                                          figsize=(8.0, 8.0),
                                          show_colorbar=False,
                                          plt_close=True,

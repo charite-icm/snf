@@ -126,7 +126,7 @@ def make_affinity(*data,
     """
 
     affinity = []
-    for inp, met in _check_data_metric(data, metric):
+    for i, (inp, met) in enumerate(_check_data_metric(data, metric)):
         # normalize data, taking into account potentially missing data
         if normalize:
             mask = np.isnan(inp).all(axis=1)
