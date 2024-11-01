@@ -10,10 +10,10 @@ def main() -> None:
     mod_names = ("0", "1", "2", "3")
     save_path = "results/test_toydata"
 
-
     digits = datasets.load_digits()
     print(digits.keys())
     
+    # It is important that data frames contain a column named "eid" 
     dfs = []
     for arr in digits.data:
         df = pd.DataFrame(arr)
