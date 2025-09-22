@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-Here’s an example of how to use the `Snf` class with toy data which can be found in `example_toydata.py`:
+Here’s an example of how to use the `Snf` class with toy data, which can be found in `example_toydata.py`:
 
 ```python
 import os
@@ -60,11 +60,7 @@ The SNF method combines data from multiple sources by constructing affinity matr
 
 For more detailed information on the SNF method, please refer to:
 - **Original SNF Paper**: [Wang et al., Nature Methods, 2014](https://www.nature.com/articles/nmeth.2810)
-- **Our Paper**: [Your Paper Title, Journal Name, Year] (Include full reference)
-
-## References
-- Wang, B., Mezlini, A. M., Demir, F., Fiume, M., Tu, Z., Brudno, M., Haibe-Kains, B., & Goldenberg, A. (2014). Similarity network fusion for aggregating data types on a genomic scale. *Nature Methods*, 11(3), 333–337. [DOI](https://doi.org/10.1038/nmeth.2810)
-- Your Paper: [Author(s), Year, Journal/Conference]
+- **Our Paper**: [Versnjak et. al., European Journal of Heart Failure, 2025](https://doi.org/10.1002/ejhf.70041)
 
 ## Acknowledgements
-This project builds on the work of [Markello et al., snfpy](https://github.com/rmarkello/snfpy) which is outdated and extends their original implementation.
+This project builds on the work of [Markello et al., snfpy](https://github.com/rmarkello/snfpy), which is outdated and extends their original implementation.
